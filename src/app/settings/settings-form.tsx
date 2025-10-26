@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Save } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const settingsFormSchema = z.object({
   language: z.string(),
@@ -30,6 +30,8 @@ interface SettingsFormProps {
 
 export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
   const { toast } = useToast();
+  // Placeholder for i18n
+  const [language, setLanguage] = useState('en');
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
@@ -57,6 +59,7 @@ export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
 
   function onSubmit(data: SettingsFormValues) {
     console.log(data);
+    setLanguage(data.language);
     toast({
       title: 'Settings Saved',
       description: 'Your new settings have been applied.',
