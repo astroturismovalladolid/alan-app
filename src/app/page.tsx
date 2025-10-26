@@ -37,7 +37,7 @@ export default function Home() {
        <div className="absolute top-8 right-8 z-[1000]">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex h-auto items-center gap-3 rounded-full bg-white text-foreground p-2 pr-4 shadow-lg hover:bg-gray-100">
+            <Button variant="ghost" className="flex h-auto items-center gap-3 rounded-full bg-white p-2 pr-4 shadow-lg hover:bg-gray-100">
               <Avatar className="h-9 w-9">
                 <AvatarImage src={userAvatar} alt="Alex Doe" />
                 <AvatarFallback>AD</AvatarFallback>
@@ -62,7 +62,7 @@ export default function Home() {
       <div className="absolute bottom-8 right-8 z-[1000]">
         <Button
           size="lg"
-          className="rounded-full h-16 w-16 p-0 bg-white text-foreground shadow-lg hover:bg-gray-100"
+          className="rounded-full h-16 w-16 p-0 bg-white text-black shadow-lg hover:bg-gray-100"
           onClick={() => setUploadModalOpen(true)}
         >
           <Camera className="h-8 w-8" />
