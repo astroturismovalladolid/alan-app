@@ -34,6 +34,9 @@ export default function Home() {
   return (
     <main className="relative h-screen w-screen">
       <Map />
+      <div className="absolute top-8 left-8 z-[1000]">
+        <h1 className="text-5xl font-bold text-white tracking-wider" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>ALAN</h1>
+      </div>
        <div className="absolute top-8 right-8 z-[1000]">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
