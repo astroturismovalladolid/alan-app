@@ -44,7 +44,7 @@ export default function Home() {
               </Avatar>
               <div className="text-left">
                 <p className="text-sm font-medium">Alex Doe</p>
-                <p className="text-xs text-muted-foreground">Pro Plan</p>
+                <p className="text-xs text-muted-foreground">Newbie</p>
               </div>
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </Button>
@@ -53,7 +53,6 @@ export default function Home() {
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Billing</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Log out</DropdownMenuItem>
