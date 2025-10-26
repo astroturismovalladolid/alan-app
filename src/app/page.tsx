@@ -22,11 +22,13 @@ import {
 } from '@/components/ui/dialog';
 import { UploadForm } from './upload/upload-form';
 import { ProfileForm } from './profile/profile-form';
+import { SettingsForm } from './settings/settings-form';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function Home() {
   const [isUploadModalOpen, setUploadModalOpen] = useState(false);
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
+  const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
   const userAvatar = PlaceHolderImages.find(p => p.id === 'avatar4')?.imageUrl;
 
   const Map = useMemo(() => dynamic(() => import('@/components/map'), { 
@@ -58,7 +60,7 @@ export default function Home() {
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => setProfileModalOpen(true)}>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setSettingsModalOpen(true)}>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Log out</DropdownMenuItem>
           </DropdownMenuContent>
@@ -95,6 +97,18 @@ export default function Home() {
             </DialogDescription>
           </DialogHeader>
           <ProfileForm onUpdateSuccess={() => setProfileModalOpen(false)} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isSettingsModalOpen} onOpenChange={setSettingsModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Settings</DialogTitle>
+            <DialogDescription>
+              Customize your experience.
+            </DialogDescription>
+          </DialogHeader>
+          <SettingsForm onUpdateSuccess={() => setSettingsModalOpen(false)} />
         </DialogContent>
       </Dialog>
     </main>
