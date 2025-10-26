@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState, useEffect, useRef } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -15,22 +14,51 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
-import { UploadCloud, Star } from 'lucide-react';
+import { Camera, Star, LocateFixed, RefreshCw } from 'lucide-react';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
 
 const formSchema = z.object({
-  location: z.string().min(2, {
-    message: 'Location must be at least 2 characters.',
-  }),
+  latitude: z.number(),
+  longitude: z.number(),
   description: z.string().min(10, {
     message: 'Description must be at least 10 characters.',
   }),
-  rating: z.number().min(0).max(5),
-  image: z.any().refine((files) => files?.length === 1, 'Image is required.'),
+  rating: z.number().min(1).max(5),
+  image: z.string().refine((data) => data.startsWith('data:image/'), {
+    message: 'A captured image is required.',
+  }),
 });
+
+interface StarRatingInputProps {
+  value: number;
+  onChange: (value: number) => void;
+}
+
+function StarRatingInput({ value, onChange }: StarRatingInputProps) {
+  const [hoverValue, setHoverValue] = useState(0);
+
+  return (
+    <div className="flex items-center gap-2">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className={cn(
+            'h-8 w-8 cursor-pointer transition-colors',
+            (hoverValue || value) >= star
+              ? 'text-primary fill-current'
+              : 'text-muted-foreground'
+          )}
+          onClick={() => onChange(star)}
+          onMouseEnter={() => setHoverValue(star)}
+          onMouseLeave={() => setHoverValue(0)}
+        />
+      ))}
+    </div>
+  );
+}
 
 interface UploadFormProps {
   onUploadSuccess?: () => void;
@@ -38,36 +66,101 @@ interface UploadFormProps {
 
 export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const { toast } = useToast();
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const { cn } = require('@/lib/utils');
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      location: '',
       description: '',
-      rating: 2.5,
-      image: undefined,
+      rating: 3,
     },
   });
 
-  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setImagePreview(null);
+  useEffect(() => {
+    const getCameraPermission = async () => {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Not Supported',
+          description: 'Your browser does not support camera access.',
+        });
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setHasCameraPermission(true);
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings to use this feature.',
+        });
+      }
+    };
+
+    const getLocation = () => {
+      if (!navigator.geolocation) {
+        setLocationError('Geolocation is not supported by your browser.');
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLocation({ lat: latitude, lon: longitude });
+          form.setValue('latitude', latitude);
+          form.setValue('longitude', longitude);
+          setLocationError(null);
+        },
+        () => {
+          setLocationError('Unable to retrieve your location. Please ensure location services are enabled.');
+        }
+      );
+    };
+
+    getCameraPermission();
+    getLocation();
+  }, [form, toast]);
+
+  const captureImage = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        const dataUrl = canvas.toDataURL('image/jpeg');
+        setCapturedImage(dataUrl);
+        form.setValue('image', dataUrl);
+      }
     }
-  }
+  };
+
+  const retakeImage = () => {
+    setCapturedImage(null);
+    form.resetField('image');
+  };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values); // In a real app, you would upload this data.
     toast({
       title: 'Upload Successful!',
-      description: 'Your image has been added.',
+      description: 'Your observation has been submitted.',
     });
     if (onUploadSuccess) {
       onUploadSuccess();
@@ -77,55 +170,63 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="image"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Image</FormLabel>
-              <FormControl>
-                <div className="flex flex-col items-center justify-center w-full">
-                  <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer border-border bg-card hover:bg-accent">
-                    {imagePreview ? (
-                      <img src={imagePreview} alt="Image preview" className="object-contain h-full w-full rounded-lg" />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <UploadCloud className="w-8 h-8 mb-2 text-muted-foreground" />
-                        <p className="mb-1 text-sm text-muted-foreground"><span className="font-semibold text-primary">Click to upload</span></p>
-                        <p className="text-xs text-muted-foreground">PNG, JPG or WEBP</p>
-                      </div>
-                    )}
-                    <Input
-                      id="dropzone-file"
-                      type="file"
-                      className="hidden"
-                      accept="image/png, image/jpeg, image/webp"
-                      onChange={(e) => {
-                        field.onChange(e.target.files);
-                        handleImageChange(e);
-                      }}
-                    />
-                  </label>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <FormItem>
+          <FormLabel>Live Camera</FormLabel>
+          <div className="relative w-full aspect-video bg-card border rounded-md overflow-hidden flex items-center justify-center">
+            {hasCameraPermission === null && <p>Requesting camera permission...</p>}
+            {hasCameraPermission === false && (
+              <Alert variant="destructive" className="m-4">
+                <AlertTitle>Camera Access Required</AlertTitle>
+                <AlertDescription>
+                  Please allow camera access to use this feature.
+                </AlertDescription>
+              </Alert>
+            )}
+            {hasCameraPermission && (
+              <>
+                <video ref={videoRef} className={cn("w-full h-full object-cover", capturedImage ? 'hidden' : 'block')} autoPlay playsInline muted />
+                {capturedImage && (
+                  <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
+                )}
+              </>
+            )}
+          </div>
+          <div className="mt-2 flex gap-2">
+            {!capturedImage ? (
+              <Button type="button" onClick={captureImage} className="w-full" disabled={!hasCameraPermission}>
+                <Camera className="mr-2 h-4 w-4" />
+                Capture Image
+              </Button>
+            ) : (
+              <Button type="button" onClick={retakeImage} variant="outline" className="w-full">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Retake
+              </Button>
+            )}
+          </div>
+           <FormField control={form.control} name="image" render={() => <FormMessage />} />
+        </FormItem>
+        
+        <canvas ref={canvasRef} className="hidden" />
 
-        <FormField
-          control={form.control}
-          name="location"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Location</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., Downtown, Metropolis" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <FormItem>
+          <FormLabel>Location</FormLabel>
+          <div className="flex items-center gap-2 p-3 rounded-md border bg-muted/50">
+            <LocateFixed className="h-5 w-5 text-muted-foreground" />
+            <div className="text-sm">
+              {location ? (
+                <span>
+                  Lat: {location.lat.toFixed(4)}, Lon: {location.lon.toFixed(4)}
+                </span>
+              ) : locationError ? (
+                <span className="text-destructive">{locationError}</span>
+              ) : (
+                'Fetching location...'
+              )}
+            </div>
+          </div>
+           <FormField control={form.control} name="latitude" render={() => <FormMessage />} />
+        </FormItem>
 
         <FormField
           control={form.control}
@@ -135,7 +236,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
               <FormLabel>Description</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Describe the light pollution you see..."
+                  placeholder="Describe what you see..."
                   {...field}
                 />
               </FormControl>
@@ -149,28 +250,18 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
           name="rating"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Severity Rating: {field.value.toFixed(1)} / 5.0</FormLabel>
+              <FormLabel>Illumination Quality</FormLabel>
               <FormControl>
-                <div className="flex items-center gap-4">
-                  <Star className="h-5 w-5 text-muted-foreground" />
-                  <Slider
-                    defaultValue={[field.value]}
-                    max={5}
-                    step={0.1}
-                    onValueChange={(value) => field.onChange(value[0])}
-                  />
-                  <div className="flex gap-0.5">
-                    <Star className="h-5 w-5 text-primary fill-current" />
-                  </div>
-                </div>
+                <StarRatingInput value={field.value} onChange={field.onChange} />
               </FormControl>
+              <FormDescription>1 star is poor illumination, 5 stars is excellent.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
         <Button type="submit" size="lg" className="w-full">
-          Submit Image
+          Submit Observation
         </Button>
       </form>
     </Form>
