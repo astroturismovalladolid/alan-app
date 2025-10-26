@@ -30,7 +30,9 @@ function MapComponent() {
   useEffect(() => {
     // Only run this effect on the client, and only when the container is available
     if (isClient && mapContainerRef.current && !mapRef.current) {
-      const map = L.map(mapContainerRef.current).setView([51.505, -0.09], 13);
+      const map = L.map(mapContainerRef.current, {
+        zoomControl: false, // Disable the zoom control
+      }).setView([51.505, -0.09], 13);
       mapRef.current = map; // Store the map instance in the ref
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
