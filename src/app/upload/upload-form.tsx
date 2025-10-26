@@ -17,7 +17,6 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Camera, Star, LocateFixed, RefreshCw } from 'lucide-react';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
@@ -143,12 +142,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
           <div className="relative w-full aspect-video bg-card border rounded-md overflow-hidden flex items-center justify-center">
             {capturedImage ? (
               <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
-            ) : (
-               <div className="text-center text-muted-foreground">
-                  <Camera className="mx-auto h-12 w-12" />
-                  <p>Click below to take a photo</p>
-                </div>
-            )}
+            ) : null}
           </div>
           <div className="mt-2 flex gap-2">
             {!capturedImage ? (
