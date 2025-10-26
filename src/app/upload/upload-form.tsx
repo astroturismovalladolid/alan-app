@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Camera, Star, LocateFixed, RefreshCw } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   latitude: z.number(),
@@ -72,8 +73,6 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
-  const { cn } = require('@/lib/utils');
-
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
