@@ -18,5 +18,16 @@
   "night": "Night",
   "saveSettings": "Save Settings",
   "settingsSaved": "Settings Saved",
-  "yourNewSettingsHaveBeenApplied": "Your new settings have been applied."
+  "yourNewSettingsHaveBeenApplied": "Your new settings have been applied.",
+  "defaultBio": "Stargazer and advocate for dark skies. Exploring the cosmos from my backyard.",
+  "profileUpdated": "Profile Updated",
+  "yourChangesHaveBeenSaved": "Your changes have been saved successfully.",
+  "profilePicture": "Profile Picture",
+  "changeAvatar": "Change Avatar",
+  "avatarFormat": "JPG, GIF or PNG. 1MB max.",
+  "username": "Username",
+  "yourUsername": "Your username",
+  "bio": "Bio",
+  "tellUsAboutYourself": "Tell us a little about yourself",
+  "saveChanges": "Save Changes"
 }

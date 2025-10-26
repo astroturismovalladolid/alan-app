@@ -14,6 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import { UploadCloud, Save } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useLanguage } from '@/context/language-context';
 
 const profileFormSchema = z.object({
   username: z.string().min(2, 'Username must be at least 2 characters.'),
@@ -29,6 +30,7 @@ interface ProfileFormProps {
 
 export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const userAvatar = PlaceHolderImages.find(p => p.id === 'avatar4')?.imageUrl;
   const [avatarPreview, setAvatarPreview] = useState<string | null>(userAvatar || null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -37,7 +39,7 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
       username: 'Alex Doe',
-      bio: 'Stargazer and advocate for dark skies. Exploring the cosmos from my backyard.',
+      bio: t('defaultBio'),
       avatar: userAvatar,
     },
   });
@@ -58,8 +60,8 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
   function onSubmit(data: ProfileFormValues) {
     console.log(data);
     toast({
-      title: 'Profile Updated',
-      description: 'Your changes have been saved successfully.',
+      title: t('profileUpdated'),
+      description: t('yourChangesHaveBeenSaved'),
     });
     if (onUpdateSuccess) {
       onUpdateSuccess();
@@ -75,11 +77,11 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
             <AvatarFallback>{form.watch('username')?.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="flex-grow">
-            <FormLabel>Profile Picture</FormLabel>
+            <FormLabel>{t('profilePicture')}</FormLabel>
             <div className="mt-2">
                 <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
                 <UploadCloud className="mr-2 h-4 w-4" />
-                Change Avatar
+                {t('changeAvatar')}
                 </Button>
                 <Input 
                 type="file"
@@ -89,7 +91,7 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
                 onChange={handleAvatarChange}
                 />
             </div>
-            <p className="text-xs text-muted-foreground mt-2">JPG, GIF or PNG. 1MB max.</p>
+            <p className="text-xs text-muted-foreground mt-2">{t('avatarFormat')}</p>
           </div>
         </div>
 
@@ -98,9 +100,9 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>{t('username')}</FormLabel>
               <FormControl>
-                <Input placeholder="Your username" {...field} />
+                <Input placeholder={t('yourUsername')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -112,10 +114,10 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
           name="bio"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Bio</FormLabel>
+              <FormLabel>{t('bio')}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Tell us a little about yourself"
+                  placeholder={t('tellUsAboutYourself')}
                   className="resize-none"
                   {...field}
                 />
@@ -128,7 +130,7 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
         <div className="flex justify-end">
             <Button type="submit">
                 <Save className="mr-2 h-4 w-4" />
-                Save Changes
+                {t('saveChanges')}
             </Button>
         </div>
       </form>
