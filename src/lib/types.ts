@@ -8,19 +8,3 @@ export interface LightPollutionImage {
   author: string;
   timestamp: string;
 }
-
-export interface ForumPost {
-  id: string;
-  author: string;
-  avatar: string;
-  content: string;
-  timestamp: string;
-}
-
-export interface ForumTopic {
-  id: string;
-  title: string;
-  postCount: number;
-  lastActivity: string;
-  posts: ForumPost[];
-}

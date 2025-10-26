@@ -66,35 +66,3 @@ export const mockImages: LightPollutionImage[] = [
     timestamp: '2024-05-11T23:50:00Z',
   },
 ];
-
-export const mockForumTopics: ForumTopic[] = [
-  {
-    id: '1',
-    title: 'Best practices for reporting light pollution to city council?',
-    postCount: 12,
-    lastActivity: '2 hours ago',
-    posts: [
-      { id: 'p1', author: 'CivicDuty', avatar: getImage('avatar1').url, content: 'I\'m putting together a report for my city council about the terrible streetlights they installed. Does anyone have tips on what to include to make it effective?', timestamp: '2024-05-12T10:00:00Z'},
-      { id: 'p2', author: 'AstroAmy', avatar: getImage('avatar2').url, content: 'Definitely include photos and measurements if you can. Data speaks louder than words!', timestamp: '2024-05-12T11:30:00Z'},
-      { id: 'p3', author: 'NightWatcher', avatar: getImage('avatar3').url, content: 'Mention the environmental impact on nocturnal animals. That often gets their attention.', timestamp: '2024-05-12T12:15:00Z'},
-    ]
-  },
-  {
-    id: '2',
-    title: 'DIY: Building a simple sky quality meter',
-    postCount: 8,
-    lastActivity: '1 day ago',
-    posts: [
-        { id: 'p4', author: 'TechieTom', avatar: getImage('avatar1').url, content: 'Has anyone tried building their own Sky Quality Meter? I found a few guides online and wanted to see if anyone had success.', timestamp: '2024-05-11T14:00:00Z'},
-    ]
-  },
-  {
-    id: '3',
-    title: 'Impact of LED color temperature',
-    postCount: 25,
-    lastActivity: '3 days ago',
-    posts: [
-        { id: 'p5', author: 'EcoWarrior', avatar: getImage('avatar2').url, content: 'There\'s a big debate about the color temperature of LED lights. What\'s better for reducing skyglow, 2700K or 3000K?', timestamp: '2024-05-09T09:00:00Z'},
-    ]
-  }
-];
