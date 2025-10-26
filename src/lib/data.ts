@@ -1,0 +1,100 @@
+import type { LightPollutionImage, ForumTopic } from '@/lib/types';
+import { PlaceHolderImages } from './placeholder-images';
+
+const getImage = (id: string) => {
+    const img = PlaceHolderImages.find(p => p.id === id);
+    if (!img) {
+        // Fallback for safety, though it shouldn't be needed
+        return { url: 'https://picsum.photos/seed/error/800/600', dataAiHint: 'error' };
+    }
+    return { url: img.imageUrl, dataAiHint: img.imageHint };
+}
+
+export const mockImages: LightPollutionImage[] = [
+  {
+    id: '1',
+    ...getImage('night-city-1'),
+    location: 'Downtown, Metropolis',
+    rating: 4.5,
+    description: 'The light from the skyscrapers completely washes out the night sky. It\'s impossible to see any stars.',
+    author: 'Stargazer_1',
+    timestamp: '2024-05-10T22:30:00Z',
+  },
+  {
+    id: '2',
+    ...getImage('sky-glow-1'),
+    location: 'City Outskirts',
+    rating: 3.8,
+    description: 'Even 20 miles from the city center, the sky has an unnatural orange glow.',
+    author: 'NightWatcher',
+    timestamp: '2024-05-09T23:00:00Z',
+  },
+  {
+    id: '3',
+    ...getImage('starry-night-polluted'),
+    location: 'Suburban Park',
+    rating: 3.2,
+    description: 'You can make out a few constellations, but the Milky Way is completely invisible due to surrounding neighborhood lights.',
+    author: 'AstroAmy',
+    timestamp: '2024-05-11T01:15:00Z',
+  },
+  {
+    id: '4',
+    ...getImage('street-lamp-1'),
+    location: 'Residential Street',
+    rating: 5.0,
+    description: 'This new LED street lamp is unshielded and blindingly bright. It shines directly into my bedroom window.',
+    author: 'TiredResident',
+    timestamp: '2024-05-12T02:00:00Z',
+  },
+  {
+    id: '5',
+    ...getImage('industrial-light'),
+    location: 'Industrial Zone',
+    rating: 4.8,
+    description: 'The entire industrial park is lit up like it\'s daytime, all night long.',
+    author: 'EcoWarrior',
+    timestamp: '2024-05-08T21:45:00Z',
+  },
+  {
+    id: '6',
+    ...getImage('suburban-sky'),
+    location: 'My Backyard',
+    rating: 3.5,
+    description: 'Trying to do some astrophotography but the background sky brightness is just too high.',
+    author: 'LensMan',
+    timestamp: '2024-05-11T23:50:00Z',
+  },
+];
+
+export const mockForumTopics: ForumTopic[] = [
+  {
+    id: '1',
+    title: 'Best practices for reporting light pollution to city council?',
+    postCount: 12,
+    lastActivity: '2 hours ago',
+    posts: [
+      { id: 'p1', author: 'CivicDuty', avatar: getImage('avatar1').url, content: 'I\'m putting together a report for my city council about the terrible streetlights they installed. Does anyone have tips on what to include to make it effective?', timestamp: '2024-05-12T10:00:00Z'},
+      { id: 'p2', author: 'AstroAmy', avatar: getImage('avatar2').url, content: 'Definitely include photos and measurements if you can. Data speaks louder than words!', timestamp: '2024-05-12T11:30:00Z'},
+      { id: 'p3', author: 'NightWatcher', avatar: getImage('avatar3').url, content: 'Mention the environmental impact on nocturnal animals. That often gets their attention.', timestamp: '2024-05-12T12:15:00Z'},
+    ]
+  },
+  {
+    id: '2',
+    title: 'DIY: Building a simple sky quality meter',
+    postCount: 8,
+    lastActivity: '1 day ago',
+    posts: [
+        { id: 'p4', author: 'TechieTom', avatar: getImage('avatar1').url, content: 'Has anyone tried building their own Sky Quality Meter? I found a few guides online and wanted to see if anyone had success.', timestamp: '2024-05-11T14:00:00Z'},
+    ]
+  },
+  {
+    id: '3',
+    title: 'Impact of LED color temperature',
+    postCount: 25,
+    lastActivity: '3 days ago',
+    posts: [
+        { id: 'p5', author: 'EcoWarrior', avatar: getImage('avatar2').url, content: 'There\'s a big debate about the color temperature of LED lights. What\'s better for reducing skyglow, 2700K or 3000K?', timestamp: '2024-05-09T09:00:00Z'},
+    ]
+  }
+];

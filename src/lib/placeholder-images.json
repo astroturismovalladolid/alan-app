@@ -1,3 +1,58 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "night-city-1",
+      "description": "A bustling city street at night with heavy light pollution.",
+      "imageUrl": "https://images.unsplash.com/photo-1645451365229-676df30167f0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxuaWdodCUyMGNpdHl8ZW58MHx8fHwxNzYxMzg4OTQ4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "night city"
+    },
+    {
+      "id": "sky-glow-1",
+      "description": "The glow of a city skyline reflecting off the clouds.",
+      "imageUrl": "https://images.unsplash.com/photo-1616188053027-54f1f4a30668?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxza3klMjBnbG93fGVufDB8fHx8MTc2MTQ4MDEzMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sky glow"
+    },
+    {
+      "id": "starry-night-polluted",
+      "description": "A night sky where only the brightest stars are visible through the light pollution.",
+      "imageUrl": "https://images.unsplash.com/photo-1628498188904-036f5e25e93e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzdGFycnklMjBuaWdodHxlbnwwfHx8fDE3NjEzOTMwODN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "starry night"
+    },
+    {
+      "id": "street-lamp-1",
+      "description": "An overly bright street lamp causing significant glare.",
+      "imageUrl": "https://images.unsplash.com/photo-1578991131717-c5f8ff4dff06?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzdHJlZXQlMjBsYW1wfGVufDB8fHx8MTc2MTQ1NDE3MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "street lamp"
+    },
+    {
+      "id": "industrial-light",
+      "description": "An industrial area lit up brightly at night.",
+      "imageUrl": "https://images.unsplash.com/photo-1583743089482-c94651f20f2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxpbmR1c3RyaWFsJTIwbGlnaHR8ZW58MHx8fHwxNzYxNDgwMTMxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "industrial light"
+    },
+    {
+      "id": "suburban-sky",
+      "description": "Light pollution from a suburban area obscuring the milky way.",
+      "imageUrl": "https://images.unsplash.com/photo-1644945591633-cde13539018b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzdWJ1cmJhbiUyMHNreXxlbnwwfHx8fDE3NjE0ODAxMzJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "suburban sky"
+    },
+    {
+      "id": "avatar1",
+      "description": "User avatar 1",
+      "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjE0Mzg3NjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "avatar2",
+      "description": "User avatar 2",
+      "imageUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjE0Mzg3NjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "avatar3",
+      "description": "User avatar 3",
+      "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjE0Mzg3NjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    }
+  ]
 }
