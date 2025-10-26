@@ -6,16 +6,23 @@ import L from 'leaflet';
 import React from 'react';
 
 // Fix for default icon path in Leaflet with webpack
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+if (typeof window !== 'undefined') {
+  delete (L.Icon.Default.prototype as any)._getIconUrl;
 
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-});
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+    iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+  });
+}
 
 function MapComponent() {
   const position: [number, number] = [51.505, -0.09]; // Default position
+
+  // Check if we're in the browser before rendering the map
+  if (typeof window === 'undefined') {
+    return null;
+  }
 
   return (
     <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%', zIndex: 0 }}>
@@ -34,4 +41,4 @@ function MapComponent() {
   );
 }
 
-export default React.memo(MapComponent);
+export default MapComponent;
