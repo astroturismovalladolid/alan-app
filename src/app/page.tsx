@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -22,10 +21,12 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { UploadForm } from './upload/upload-form';
+import { ProfileForm } from './profile/profile-form';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function Home() {
   const [isUploadModalOpen, setUploadModalOpen] = useState(false);
+  const [isProfileModalOpen, setProfileModalOpen] = useState(false);
   const userAvatar = PlaceHolderImages.find(p => p.id === 'avatar4')?.imageUrl;
 
   const Map = useMemo(() => dynamic(() => import('@/components/map'), { 
@@ -56,9 +57,7 @@ export default function Home() {
           <DropdownMenuContent align="end" className="w-56 border-0 shadow-lg">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <Link href="/profile" passHref>
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-            </Link>
+            <DropdownMenuItem onSelect={() => setProfileModalOpen(true)}>Profile</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Log out</DropdownMenuItem>
@@ -84,6 +83,18 @@ export default function Home() {
             </DialogDescription>
           </DialogHeader>
           <UploadForm onUploadSuccess={() => setUploadModalOpen(false)} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isProfileModalOpen} onOpenChange={setProfileModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogDescription>
+              Manage your account settings and public profile.
+            </DialogDescription>
+          </DialogHeader>
+          <ProfileForm onUpdateSuccess={() => setProfileModalOpen(false)} />
         </DialogContent>
       </Dialog>
     </main>
