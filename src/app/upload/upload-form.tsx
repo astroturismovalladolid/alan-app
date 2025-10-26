@@ -67,12 +67,10 @@ interface UploadFormProps {
 
 export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const { toast } = useToast();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -83,34 +81,6 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   });
 
   useEffect(() => {
-    const getCameraPermission = async () => {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setHasCameraPermission(false);
-        toast({
-          variant: 'destructive',
-          title: 'Camera Not Supported',
-          description: 'Your browser does not support camera access.',
-        });
-        return;
-      }
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        setHasCameraPermission(true);
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        setHasCameraPermission(false);
-        toast({
-          variant: 'destructive',
-          title: 'Camera Access Denied',
-          description: 'Please enable camera permissions in your browser settings to use this feature.',
-        });
-      }
-    };
-
     const getLocation = () => {
       if (!navigator.geolocation) {
         setLocationError('Geolocation is not supported by your browser.');
@@ -130,29 +100,28 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       );
     };
 
-    getCameraPermission();
     getLocation();
-  }, [form, toast]);
+  }, [form]);
 
-  const captureImage = () => {
-    if (videoRef.current && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const context = canvas.getContext('2d');
-      if (context) {
-        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-        const dataUrl = canvas.toDataURL('image/jpeg');
+  const handleImageCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
         setCapturedImage(dataUrl);
         form.setValue('image', dataUrl);
-      }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const retakeImage = () => {
     setCapturedImage(null);
     form.resetField('image');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -170,31 +139,22 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormItem>
-          <FormLabel>Live Camera</FormLabel>
+          <FormLabel>Image</FormLabel>
           <div className="relative w-full aspect-video bg-card border rounded-md overflow-hidden flex items-center justify-center">
-            {hasCameraPermission === null && <p>Requesting camera permission...</p>}
-            {hasCameraPermission === false && (
-              <Alert variant="destructive" className="m-4">
-                <AlertTitle>Camera Access Required</AlertTitle>
-                <AlertDescription>
-                  Please allow camera access to use this feature.
-                </AlertDescription>
-              </Alert>
-            )}
-            {hasCameraPermission && (
-              <>
-                <video ref={videoRef} className={cn("w-full h-full object-cover", capturedImage ? 'hidden' : 'block')} autoPlay playsInline muted />
-                {capturedImage && (
-                  <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
-                )}
-              </>
+            {capturedImage ? (
+              <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
+            ) : (
+               <div className="text-center text-muted-foreground">
+                  <Camera className="mx-auto h-12 w-12" />
+                  <p>Click below to take a photo</p>
+                </div>
             )}
           </div>
           <div className="mt-2 flex gap-2">
             {!capturedImage ? (
-              <Button type="button" onClick={captureImage} className="w-full" disabled={!hasCameraPermission}>
+               <Button type="button" onClick={() => fileInputRef.current?.click()} className="w-full">
                 <Camera className="mr-2 h-4 w-4" />
-                Capture Image
+                Take Photo
               </Button>
             ) : (
               <Button type="button" onClick={retakeImage} variant="outline" className="w-full">
@@ -203,11 +163,19 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
               </Button>
             )}
           </div>
+          <FormControl>
+            <Input 
+              type="file" 
+              accept="image/*" 
+              capture="environment"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={handleImageCapture} 
+            />
+          </FormControl>
            <FormField control={form.control} name="image" render={() => <FormMessage />} />
         </FormItem>
         
-        <canvas ref={canvasRef} className="hidden" />
-
         <FormItem>
           <FormLabel>Location</FormLabel>
           <div className="flex items-center gap-2 p-3 rounded-md border bg-muted/50">
