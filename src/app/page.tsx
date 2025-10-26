@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
-import { Camera } from 'lucide-react';
+import { Camera, User } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -23,6 +23,15 @@ export default function Home() {
   return (
     <main className="relative h-screen w-screen">
       <Map />
+       <div className="absolute top-8 right-8 z-[1000]">
+        <Button
+          size="lg"
+          className="rounded-full h-16 w-16 p-0"
+          onClick={() => { /* Placeholder for profile action */ }}
+        >
+          <User className="h-8 w-8" />
+        </Button>
+      </div>
       <div className="absolute bottom-8 right-8 z-[1000]">
         <Button
           size="lg"
