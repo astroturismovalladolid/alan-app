@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -16,6 +17,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import { Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useLanguage } from '@/context/language-context';
 
 const settingsFormSchema = z.object({
   language: z.string(),
@@ -30,13 +32,12 @@ interface SettingsFormProps {
 
 export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
   const { toast } = useToast();
-  // Placeholder for i18n
-  const [language, setLanguage] = useState('en');
+  const { language, setLanguage, t } = useLanguage();
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
     defaultValues: {
-      language: 'en',
+      language: language,
       theme: 'dark',
     },
   });
@@ -49,6 +50,10 @@ export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
         form.setValue('theme', currentTheme);
     }
   }, [form]);
+  
+  useEffect(() => {
+    form.setValue('language', language);
+  }, [language, form]);
 
   useEffect(() => {
     document.documentElement.classList.remove('light', 'dark', 'night');
@@ -58,11 +63,10 @@ export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
 
 
   function onSubmit(data: SettingsFormValues) {
-    console.log(data);
-    setLanguage(data.language);
+    setLanguage(data.language as 'en' | 'es' | 'fr');
     toast({
-      title: 'Settings Saved',
-      description: 'Your new settings have been applied.',
+      title: t('settingsSaved'),
+      description: t('yourNewSettingsHaveBeenApplied'),
     });
     if (onUpdateSuccess) {
       onUpdateSuccess();
@@ -77,11 +81,11 @@ export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
           name="language"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Language</FormLabel>
+              <FormLabel>{t('language')}</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a language" />
+                    <SelectValue placeholder={t('selectLanguage')} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -100,7 +104,7 @@ export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
           name="theme"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel>Visualization Mode</FormLabel>
+              <FormLabel>{t('visualizationMode')}</FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -112,7 +116,7 @@ export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
                       <RadioGroupItem value="light" />
                     </FormControl>
                     <FormLabel className="font-normal">
-                      Light
+                      {t('light')}
                     </FormLabel>
                   </FormItem>
                   <FormItem className="flex items-center space-x-3 space-y-0">
@@ -120,7 +124,7 @@ export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
                       <RadioGroupItem value="dark" />
                     </FormControl>
                     <FormLabel className="font-normal">
-                      Dark
+                      {t('dark')}
                     </FormLabel>
                   </FormItem>
                   <FormItem className="flex items-center space-x-3 space-y-0">
@@ -128,7 +132,7 @@ export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
                       <RadioGroupItem value="night" />
                     </FormControl>
                     <FormLabel className="font-normal">
-                      Night
+                      {t('night')}
                     </FormLabel>
                   </FormItem>
                 </RadioGroup>
@@ -141,7 +145,7 @@ export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
         <div className="flex justify-end">
             <Button type="submit">
                 <Save className="mr-2 h-4 w-4" />
-                Save Settings
+                {t('saveSettings')}
             </Button>
         </div>
       </form>

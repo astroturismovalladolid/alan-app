@@ -1,0 +1,22 @@
+
+{
+  "newbie": "Novato",
+  "myAccount": "Mi Cuenta",
+  "profile": "Perfil",
+  "settings": "Ajustes",
+  "logOut": "Cerrar sesión",
+  "shareYourObservation": "Comparte Tu Observación",
+  "helpMapLightPollution": "Ayuda a mapear la contaminación lumínica subiendo una imagen.",
+  "editProfile": "Editar Perfil",
+  "manageYourAccount": "Administra la configuración de tu cuenta y tu perfil público.",
+  "customizeYourExperience": "Personaliza tu experiencia.",
+  "language": "Idioma",
+  "selectLanguage": "Selecciona un idioma",
+  "visualizationMode": "Modo de Visualización",
+  "light": "Claro",
+  "dark": "Oscuro",
+  "night": "Noche",
+  "saveSettings": "Guardar Ajustes",
+  "settingsSaved": "Ajustes Guardados",
+  "yourNewSettingsHaveBeenApplied": "Tus nuevos ajustes han sido aplicados."
+}

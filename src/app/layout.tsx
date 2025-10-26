@@ -1,9 +1,11 @@
+
 'use client';
 import type { Metadata } from 'next';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 import 'leaflet/dist/leaflet.css';
 import { useEffect } from 'react';
+import { LanguageProvider } from '@/context/language-context';
 
 // export const metadata: Metadata = {
 //   title: 'ALAN - Anti-Light-Pollution Action Network',
@@ -27,8 +29,10 @@ export default function RootLayout({
         <meta name="description" content="Upload, view, and discuss images of light pollution." />
       </head>
       <body>
-        {children}
-        <Toaster />
+        <LanguageProvider>
+          {children}
+          <Toaster />
+        </LanguageProvider>
       </body>
     </html>
   );

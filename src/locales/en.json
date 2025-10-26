@@ -1,0 +1,22 @@
+
+{
+  "newbie": "Newbie",
+  "myAccount": "My Account",
+  "profile": "Profile",
+  "settings": "Settings",
+  "logOut": "Log out",
+  "shareYourObservation": "Share Your Observation",
+  "helpMapLightPollution": "Help map light pollution by uploading an image.",
+  "editProfile": "Edit Profile",
+  "manageYourAccount": "Manage your account settings and public profile.",
+  "customizeYourExperience": "Customize your experience.",
+  "language": "Language",
+  "selectLanguage": "Select a language",
+  "visualizationMode": "Visualization Mode",
+  "light": "Light",
+  "dark": "Dark",
+  "night": "Night",
+  "saveSettings": "Save Settings",
+  "settingsSaved": "Settings Saved",
+  "yourNewSettingsHaveBeenApplied": "Your new settings have been applied."
+}

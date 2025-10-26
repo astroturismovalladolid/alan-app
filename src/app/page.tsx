@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -24,12 +25,14 @@ import { UploadForm } from './upload/upload-form';
 import { ProfileForm } from './profile/profile-form';
 import { SettingsForm } from './settings/settings-form';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useLanguage } from '@/context/language-context';
 
 export default function Home() {
   const [isUploadModalOpen, setUploadModalOpen] = useState(false);
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
   const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
   const userAvatar = PlaceHolderImages.find(p => p.id === 'avatar4')?.imageUrl;
+  const { t } = useLanguage();
 
   const Map = useMemo(() => dynamic(() => import('@/components/map'), { 
     ssr: false 
@@ -51,18 +54,18 @@ export default function Home() {
               </Avatar>
               <div className="text-left">
                 <p className="text-sm font-medium text-card-foreground">Alex Doe</p>
-                <p className="text-xs text-muted-foreground">Newbie</p>
+                <p className="text-xs text-muted-foreground">{t('newbie')}</p>
               </div>
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 border-0 shadow-lg">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>{t('myAccount')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => setProfileModalOpen(true)}>Profile</DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setSettingsModalOpen(true)}>Settings</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setProfileModalOpen(true)}>{t('profile')}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setSettingsModalOpen(true)}>{t('settings')}</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Log out</DropdownMenuItem>
+            <DropdownMenuItem>{t('logOut')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -79,9 +82,9 @@ export default function Home() {
       <Dialog open={isUploadModalOpen} onOpenChange={setUploadModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Share Your Observation</DialogTitle>
+            <DialogTitle>{t('shareYourObservation')}</DialogTitle>
             <DialogDescription>
-              Help map light pollution by uploading an image.
+              {t('helpMapLightPollution')}
             </DialogDescription>
           </DialogHeader>
           <UploadForm onUploadSuccess={() => setUploadModalOpen(false)} />
@@ -91,9 +94,9 @@ export default function Home() {
       <Dialog open={isProfileModalOpen} onOpenChange={setProfileModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogTitle>{t('editProfile')}</DialogTitle>
             <DialogDescription>
-              Manage your account settings and public profile.
+              {t('manageYourAccount')}
             </DialogDescription>
           </DialogHeader>
           <ProfileForm onUpdateSuccess={() => setProfileModalOpen(false)} />
@@ -103,9 +106,9 @@ export default function Home() {
       <Dialog open={isSettingsModalOpen} onOpenChange={setSettingsModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Settings</DialogTitle>
+            <DialogTitle>{t('settings')}</DialogTitle>
             <DialogDescription>
-              Customize your experience.
+              {t('customizeYourExperience')}
             </DialogDescription>
           </DialogHeader>
           <SettingsForm onUpdateSuccess={() => setSettingsModalOpen(false)} />

@@ -1,0 +1,22 @@
+
+{
+  "newbie": "Débutant",
+  "myAccount": "Mon Compte",
+  "profile": "Profil",
+  "settings": "Paramètres",
+  "logOut": "Se déconnecter",
+  "shareYourObservation": "Partagez Votre Observation",
+  "helpMapLightPollution": "Aidez à cartographier la pollution lumineuse en téléchargeant une image.",
+  "editProfile": "Modifier le Profil",
+  "manageYourAccount": "Gérez les paramètres de votre compte et votre profil public.",
+  "customizeYourExperience": "Personnalisez votre expérience.",
+  "language": "Langue",
+  "selectLanguage": "Sélectionnez une langue",
+  "visualizationMode": "Mode de Visualisation",
+  "light": "Clair",
+  "dark": "Sombre",
+  "night": "Nuit",
+  "saveSettings": "Enregistrer les Paramètres",
+  "settingsSaved": "Paramètres Enregistrés",
+  "yourNewSettingsHaveBeenApplied": "Vos nouveaux paramètres ont été appliqués."
+}
