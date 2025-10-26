@@ -1,4 +1,4 @@
-import type { LightPollutionImage, ForumTopic } from '@/lib/types';
+import type { LightPollutionImage } from '@/lib/types';
 import { PlaceHolderImages } from './placeholder-images';
 
 const getImage = (id: string) => {

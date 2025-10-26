@@ -3,7 +3,7 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { mockImages } from '@/lib/data';
+import React from 'react';
 
 // Fix for default icon path in Leaflet with webpack
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -14,8 +14,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
 
-
-export default function Map() {
+function MapComponent() {
   const position: [number, number] = [51.505, -0.09]; // Default position
 
   return (
@@ -34,3 +33,5 @@ export default function Map() {
     </MapContainer>
   );
 }
+
+export default React.memo(MapComponent);
