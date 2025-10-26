@@ -26,7 +26,7 @@ const formSchema = z.object({
   description: z.string().min(10, {
     message: 'Description must be at least 10 characters.',
   }),
-  rating: z.number().min(1).max(5),
+  rating: z.number().min(1, { message: 'Please select a rating.' }).max(5),
   image: z.string().refine((data) => data.startsWith('data:image/'), {
     message: 'A captured image is required.',
   }),
@@ -75,7 +75,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       description: '',
-      rating: 3,
+      rating: 0,
     },
   });
 
