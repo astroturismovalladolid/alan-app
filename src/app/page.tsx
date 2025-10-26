@@ -43,7 +43,7 @@ export default function Home() {
                 <AvatarFallback>AD</AvatarFallback>
               </Avatar>
               <div className="text-left">
-                <p className="text-sm font-medium">Alex Doe</p>
+                <p className="text-sm font-medium text-black">Alex Doe</p>
                 <p className="text-xs text-muted-foreground">Newbie</p>
               </div>
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
