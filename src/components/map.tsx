@@ -19,11 +19,6 @@ if (typeof window !== 'undefined') {
 function MapComponent() {
   const position: [number, number] = [51.505, -0.09]; // Default position
 
-  // Check if we're in the browser before rendering the map
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
   return (
     <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%', zIndex: 0 }}>
       <TileLayer

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Camera } from 'lucide-react';
@@ -13,12 +13,12 @@ import {
 } from '@/components/ui/dialog';
 import { UploadForm } from './upload/upload-form';
 
-const Map = dynamic(() => import('@/components/map'), {
-  ssr: false,
-});
-
 export default function Home() {
   const [isUploadModalOpen, setUploadModalOpen] = useState(false);
+
+  const Map = useMemo(() => dynamic(() => import('@/components/map'), { 
+    ssr: false 
+  }), []);
 
   return (
     <main className="relative h-screen w-screen">
