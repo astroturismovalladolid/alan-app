@@ -17,11 +17,12 @@ import {
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Camera, Star, LocateFixed, RefreshCw } from 'lucide-react';
+import { Camera, Star, LocateFixed, RefreshCw, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/context/language-context';
+import { addObservation } from '@/lib/observations-service';
 
 const formSchema = z.object({
   latitude: z.number(),
@@ -73,6 +74,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -127,14 +129,30 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     }
   };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values); // In a real app, you would upload this data.
-    toast({
-      title: t('uploadSuccessful'),
-      description: t('observationSubmitted'),
-    });
-    if (onUploadSuccess) {
-      onUploadSuccess();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+    try {
+      const result = await addObservation(values);
+      if (result.success) {
+        toast({
+          title: t('uploadSuccessful'),
+          description: t('observationSubmitted'),
+        });
+        if (onUploadSuccess) {
+          onUploadSuccess();
+        }
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: t('uploadFailed'),
+        description: t('observationSubmitError'),
+      });
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -147,7 +165,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
               <FormLabel>{t('image')}</FormLabel>
               <div className="relative w-full aspect-video bg-card border rounded-md overflow-hidden flex items-center justify-center">
                 {capturedImage ? (
-                  <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
+                  <img src={capturedImage} alt={t('capturedImageAlt')} className="w-full h-full object-cover" />
                 ) : null}
               </div>
               <div className="mt-2 flex gap-2">
@@ -227,8 +245,9 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
               )}
             />
 
-            <Button type="submit" size="lg" className="w-full">
-              {t('submitObservation')}
+            <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSubmitting ? t('submitting') : t('submitObservation')}
             </Button>
           </form>
         </Form>

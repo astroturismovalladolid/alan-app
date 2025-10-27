@@ -43,5 +43,10 @@
   "illuminationQualityDescription": "1 étoile correspond à un mauvais éclairage, 5 étoiles à un excellent éclairage.",
   "submitObservation": "Soumettre l'Observation",
   "uploadSuccessful": "Téléchargement Réussi!",
-  "observationSubmitted": "Votre observation a été soumise."
+  "observationSubmitted": "Votre observation a été soumise.",
+  "capturedImageAlt": "Image capturée",
+  "uploadFailed": "Échec du Téléchargement",
+
+  "observationSubmitError": "Une erreur est survenue lors de la soumission de votre observation. Veuillez réessayer.",
+  "submitting": "Soumission en cours..."
 }

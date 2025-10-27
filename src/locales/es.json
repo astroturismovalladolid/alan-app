@@ -43,5 +43,9 @@
   "illuminationQualityDescription": "1 estrella es iluminación deficiente, 5 estrellas es excelente.",
   "submitObservation": "Enviar Observación",
   "uploadSuccessful": "¡Subida Exitosa!",
-  "observationSubmitted": "Tu observación ha sido enviada."
+  "observationSubmitted": "Tu observación ha sido enviada.",
+  "capturedImageAlt": "Imagen capturada",
+  "uploadFailed": "Falló la Subida",
+  "observationSubmitError": "Ocurrió un error al enviar tu observación. Por favor, inténtalo de nuevo.",
+  "submitting": "Enviando..."
 }

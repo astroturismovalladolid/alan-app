@@ -43,5 +43,9 @@
   "illuminationQualityDescription": "1 star is poor illumination, 5 stars is excellent.",
   "submitObservation": "Submit Observation",
   "uploadSuccessful": "Upload Successful!",
-  "observationSubmitted": "Your observation has been submitted."
+  "observationSubmitted": "Your observation has been submitted.",
+  "capturedImageAlt": "Captured image",
+  "uploadFailed": "Upload Failed",
+  "observationSubmitError": "There was an error submitting your observation. Please try again.",
+  "submitting": "Submitting..."
 }
