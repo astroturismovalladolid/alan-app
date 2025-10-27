@@ -42,18 +42,18 @@ export default function Home() {
     <main className="relative h-screen w-screen">
       <Map />
       <div className="absolute top-8 left-8 z-[1000]">
-        <h1 className="text-5xl font-bold text-foreground tracking-wider" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>ALAN</h1>
+        <h1 className="text-5xl font-bold text-foreground tracking-wider [text-shadow:_2px_2px_4px_rgb(0_0_0_/_50%)]" >ALAN</h1>
       </div>
        <div className="absolute top-8 right-8 z-[1000]">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex h-auto items-center gap-3 rounded-full bg-card p-2 pr-4 shadow-lg hover:bg-accent">
+            <Button variant="ghost" className="flex h-auto items-center gap-3 rounded-full bg-card p-2 pr-4 text-card-foreground shadow-lg hover:bg-accent">
               <Avatar className="h-9 w-9">
                 <AvatarImage src={userAvatar} alt="Alex Doe" />
                 <AvatarFallback>AD</AvatarFallback>
               </Avatar>
               <div className="text-left">
-                <p className="text-sm font-medium text-card-foreground">Alex Doe</p>
+                <p className="text-sm font-medium">{t('username')}</p>
                 <p className="text-xs text-muted-foreground">{t('newbie')}</p>
               </div>
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
