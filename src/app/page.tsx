@@ -47,7 +47,7 @@ export default function Home() {
        <div className="absolute top-8 right-8 z-[1000]">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex h-auto items-center gap-3 rounded-full bg-card p-2 pr-4 text-card-foreground shadow-lg hover:bg-accent night:bg-primary night:text-primary-foreground night:hover:bg-primary/90">
+            <Button variant="ghost" className="flex h-auto items-center gap-3 rounded-full bg-card p-2 pr-4 text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:text-primary-foreground night:hover:bg-primary/90">
               <Avatar className="h-9 w-9">
                 <AvatarImage src={userAvatar} alt="Alex Doe" />
                 <AvatarFallback>AD</AvatarFallback>
