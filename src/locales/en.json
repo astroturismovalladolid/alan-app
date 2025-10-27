@@ -29,5 +29,19 @@
   "yourUsername": "Your username",
   "bio": "Bio",
   "tellUsAboutYourself": "Tell us a little about yourself",
-  "saveChanges": "Save Changes"
+  "saveChanges": "Save Changes",
+  "image": "Image",
+  "takePhoto": "Take Photo",
+  "retake": "Retake",
+  "location": "Location",
+  "fetchingLocation": "Fetching location...",
+  "geolocationNotSupported": "Geolocation is not supported by your browser.",
+  "geolocationPermissionDenied": "Unable to retrieve your location. Please ensure location services are enabled.",
+  "description": "Description",
+  "describeObservation": "Describe what you see...",
+  "illuminationQuality": "Illumination Quality",
+  "illuminationQualityDescription": "1 star is poor illumination, 5 stars is excellent.",
+  "submitObservation": "Submit Observation",
+  "uploadSuccessful": "Upload Successful!",
+  "observationSubmitted": "Your observation has been submitted."
 }

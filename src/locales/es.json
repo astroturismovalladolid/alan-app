@@ -29,5 +29,19 @@
   "yourUsername": "Tu nombre de usuario",
   "bio": "Biografía",
   "tellUsAboutYourself": "Cuéntanos un poco sobre ti",
-  "saveChanges": "Guardar Cambios"
+  "saveChanges": "Guardar Cambios",
+  "image": "Imagen",
+  "takePhoto": "Tomar Foto",
+  "retake": "Tomar de Nuevo",
+  "location": "Ubicación",
+  "fetchingLocation": "Obteniendo ubicación...",
+  "geolocationNotSupported": "La geolocalización no es compatible con tu navegador.",
+  "geolocationPermissionDenied": "No se puede recuperar tu ubicación. Asegúrate de que los servicios de ubicación estén habilitados.",
+  "description": "Descripción",
+  "describeObservation": "Describe lo que ves...",
+  "illuminationQuality": "Calidad de Iluminación",
+  "illuminationQualityDescription": "1 estrella es iluminación deficiente, 5 estrellas es excelente.",
+  "submitObservation": "Enviar Observación",
+  "uploadSuccessful": "¡Subida Exitosa!",
+  "observationSubmitted": "Tu observación ha sido enviada."
 }

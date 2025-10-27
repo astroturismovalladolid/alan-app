@@ -21,6 +21,7 @@ import { Camera, Star, LocateFixed, RefreshCw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useLanguage } from '@/context/language-context';
 
 const formSchema = z.object({
   latitude: z.number(),
@@ -68,6 +69,7 @@ interface UploadFormProps {
 
 export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -84,7 +86,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   useEffect(() => {
     const getLocation = () => {
       if (!navigator.geolocation) {
-        setLocationError('Geolocation is not supported by your browser.');
+        setLocationError(t('geolocationNotSupported'));
         return;
       }
       navigator.geolocation.getCurrentPosition(
@@ -96,13 +98,13 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
           setLocationError(null);
         },
         () => {
-          setLocationError('Unable to retrieve your location. Please ensure location services are enabled.');
+          setLocationError(t('geolocationPermissionDenied'));
         }
       );
     };
 
     getLocation();
-  }, [form]);
+  }, [form, t]);
 
   const handleImageCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -128,8 +130,8 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values); // In a real app, you would upload this data.
     toast({
-      title: 'Upload Successful!',
-      description: 'Your observation has been submitted.',
+      title: t('uploadSuccessful'),
+      description: t('observationSubmitted'),
     });
     if (onUploadSuccess) {
       onUploadSuccess();
@@ -142,7 +144,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormItem>
-              <FormLabel>Image</FormLabel>
+              <FormLabel>{t('image')}</FormLabel>
               <div className="relative w-full aspect-video bg-card border rounded-md overflow-hidden flex items-center justify-center">
                 {capturedImage ? (
                   <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
@@ -152,12 +154,12 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
                 {!capturedImage ? (
                   <Button type="button" onClick={() => fileInputRef.current?.click()} className="w-full">
                     <Camera className="mr-2 h-4 w-4" />
-                    Take Photo
+                    {t('takePhoto')}
                   </Button>
                 ) : (
                   <Button type="button" onClick={retakeImage} variant="outline" className="w-full">
                     <RefreshCw className="mr-2 h-4 w-4" />
-                    Retake
+                    {t('retake')}
                   </Button>
                 )}
               </div>
@@ -175,7 +177,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
             </FormItem>
             
             <FormItem>
-              <FormLabel>Location</FormLabel>
+              <FormLabel>{t('location')}</FormLabel>
               <div className="flex items-center gap-2 p-3 rounded-md border bg-muted/50">
                 <LocateFixed className="h-5 w-5 text-muted-foreground" />
                 <div className="text-sm">
@@ -186,7 +188,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
                   ) : locationError ? (
                     <span className="text-destructive">{locationError}</span>
                   ) : (
-                    'Fetching location...'
+                    <span>{t('fetchingLocation')}</span>
                   )}
                 </div>
               </div>
@@ -198,10 +200,10 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{t('description')}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Describe what you see..."
+                      placeholder={t('describeObservation')}
                       {...field}
                     />
                   </FormControl>
@@ -215,18 +217,18 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
               name="rating"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Illumination Quality</FormLabel>
+                  <FormLabel>{t('illuminationQuality')}</FormLabel>
                   <FormControl>
                     <StarRatingInput value={field.value} onChange={field.onChange} />
                   </FormControl>
-                  <FormDescription>1 star is poor illumination, 5 stars is excellent.</FormDescription>
+                  <FormDescription>{t('illuminationQualityDescription')}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
             <Button type="submit" size="lg" className="w-full">
-              Submit Observation
+              {t('submitObservation')}
             </Button>
           </form>
         </Form>
