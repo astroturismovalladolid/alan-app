@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -19,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Camera, Star, LocateFixed, RefreshCw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formSchema = z.object({
   latitude: z.number(),
@@ -135,96 +137,100 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormItem>
-          <FormLabel>Image</FormLabel>
-          <div className="relative w-full aspect-video bg-card border rounded-md overflow-hidden flex items-center justify-center">
-            {capturedImage ? (
-              <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
-            ) : null}
-          </div>
-          <div className="mt-2 flex gap-2">
-            {!capturedImage ? (
-               <Button type="button" onClick={() => fileInputRef.current?.click()} className="w-full">
-                <Camera className="mr-2 h-4 w-4" />
-                Take Photo
-              </Button>
-            ) : (
-              <Button type="button" onClick={retakeImage} variant="outline" className="w-full">
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Retake
-              </Button>
-            )}
-          </div>
-          <FormControl>
-            <Input 
-              type="file" 
-              accept="image/*" 
-              capture="environment"
-              ref={fileInputRef}
-              className="hidden"
-              onChange={handleImageCapture} 
-            />
-          </FormControl>
-           <FormField control={form.control} name="image" render={() => <FormMessage />} />
-        </FormItem>
-        
-        <FormItem>
-          <FormLabel>Location</FormLabel>
-          <div className="flex items-center gap-2 p-3 rounded-md border bg-muted/50">
-            <LocateFixed className="h-5 w-5 text-muted-foreground" />
-            <div className="text-sm">
-              {location ? (
-                <span>
-                  Lat: {location.lat.toFixed(4)}, Lon: {location.lon.toFixed(4)}
-                </span>
-              ) : locationError ? (
-                <span className="text-destructive">{locationError}</span>
-              ) : (
-                'Fetching location...'
-              )}
-            </div>
-          </div>
-           <FormField control={form.control} name="latitude" render={() => <FormMessage />} />
-        </FormItem>
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
+    <ScrollArea className="h-[70vh] sm:h-auto">
+      <div className="pr-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Image</FormLabel>
+              <div className="relative w-full aspect-video bg-card border rounded-md overflow-hidden flex items-center justify-center">
+                {capturedImage ? (
+                  <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
+                ) : null}
+              </div>
+              <div className="mt-2 flex gap-2">
+                {!capturedImage ? (
+                  <Button type="button" onClick={() => fileInputRef.current?.click()} className="w-full">
+                    <Camera className="mr-2 h-4 w-4" />
+                    Take Photo
+                  </Button>
+                ) : (
+                  <Button type="button" onClick={retakeImage} variant="outline" className="w-full">
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Retake
+                  </Button>
+                )}
+              </div>
               <FormControl>
-                <Textarea
-                  placeholder="Describe what you see..."
-                  {...field}
+                <Input 
+                  type="file" 
+                  accept="image/*" 
+                  capture="environment"
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={handleImageCapture} 
                 />
               </FormControl>
-              <FormMessage />
+              <FormField control={form.control} name="image" render={() => <FormMessage />} />
             </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="rating"
-          render={({ field }) => (
+            
             <FormItem>
-              <FormLabel>Illumination Quality</FormLabel>
-              <FormControl>
-                <StarRatingInput value={field.value} onChange={field.onChange} />
-              </FormControl>
-              <FormDescription>1 star is poor illumination, 5 stars is excellent.</FormDescription>
-              <FormMessage />
+              <FormLabel>Location</FormLabel>
+              <div className="flex items-center gap-2 p-3 rounded-md border bg-muted/50">
+                <LocateFixed className="h-5 w-5 text-muted-foreground" />
+                <div className="text-sm">
+                  {location ? (
+                    <span>
+                      Lat: {location.lat.toFixed(4)}, Lon: {location.lon.toFixed(4)}
+                    </span>
+                  ) : locationError ? (
+                    <span className="text-destructive">{locationError}</span>
+                  ) : (
+                    'Fetching location...'
+                  )}
+                </div>
+              </div>
+              <FormField control={form.control} name="latitude" render={() => <FormMessage />} />
             </FormItem>
-          )}
-        />
 
-        <Button type="submit" size="lg" className="w-full">
-          Submit Observation
-        </Button>
-      </form>
-    </Form>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Describe what you see..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="rating"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Illumination Quality</FormLabel>
+                  <FormControl>
+                    <StarRatingInput value={field.value} onChange={field.onChange} />
+                  </FormControl>
+                  <FormDescription>1 star is poor illumination, 5 stars is excellent.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" size="lg" className="w-full">
+              Submit Observation
+            </Button>
+          </form>
+        </Form>
+      </div>
+    </ScrollArea>
   );
 }
