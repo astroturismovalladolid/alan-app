@@ -53,7 +53,7 @@ export default function Home() {
                 <AvatarFallback>AD</AvatarFallback>
               </Avatar>
               <div className="text-left">
-                <p className="text-sm font-medium text-foreground">{t('username')}</p>
+                <p className="text-sm font-medium">{t('username')}</p>
                 <p className="text-xs text-muted-foreground">{t('newbie')}</p>
               </div>
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
