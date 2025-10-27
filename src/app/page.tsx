@@ -42,7 +42,7 @@ export default function Home() {
     <main className="relative h-screen w-screen">
       <Map />
       <div className="absolute top-8 left-8 z-[1000]">
-        <h1 className="text-5xl font-bold tracking-wider text-white dark:text-black night:text-primary [text-shadow:2px_2px_4px_rgba(0,0,0,0.3)] dark:[text-shadow:2px_2px_4px_rgba(255,255,255,0.2)] night:[text-shadow:2px_2px_4px_rgba(0,0,0,0.5)]">ALAN</h1>
+        <h1 className="text-5xl font-bold tracking-wider text-foreground night:text-primary [text-shadow:2px_2px_4px_rgba(0,0,0,0.3)] dark:[text-shadow:2px_2px_4px_rgba(255,255,255,0.2)] night:[text-shadow:2px_2px_4px_rgba(0,0,0,0.5)]">ALAN</h1>
       </div>
        <div className="absolute top-8 right-8 z-[1000]">
         <DropdownMenu>
