@@ -28,24 +28,39 @@ function MapComponent() {
   }, []);
 
   useEffect(() => {
-    // Only run this effect on the client, and only when the container is available
     if (isClient && mapContainerRef.current && !mapRef.current) {
       const map = L.map(mapContainerRef.current, {
-        zoomControl: false, // Disable the zoom control
-      }).setView([51.505, -0.09], 13);
-      mapRef.current = map; // Store the map instance in the ref
+        zoomControl: false,
+      }).setView([51.505, -0.09], 13); // Default view
+      mapRef.current = map;
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map);
-      
-      // Example with a single marker
-      L.marker([51.505, -0.09]).addTo(map)
-        .bindPopup('A pretty CSS3 popup. <br> Easily customizable.');
 
+      // Get user's current location
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            map.setView([latitude, longitude], 13);
+            L.marker([latitude, longitude]).addTo(map)
+              .bindPopup('Your current location.')
+              .openPopup();
+          },
+          () => {
+            console.log("Unable to retrieve your location. Defaulting to London.");
+            // Keep default view if location is denied
+            L.marker([51.505, -0.09]).addTo(map)
+              .bindPopup('A pretty CSS3 popup. <br> Easily customizable.');
+          }
+        );
+      } else {
+        console.log("Geolocation is not supported by this browser.");
+        L.marker([51.505, -0.09]).addTo(map)
+              .bindPopup('A pretty CSS3 popup. <br> Easily customizable.');
+      }
     }
-    // No cleanup function is needed here if we want the map to persist
-    // across re-renders, as we are preventing re-initialization.
   }, [isClient]);
 
   // The div container for the map
