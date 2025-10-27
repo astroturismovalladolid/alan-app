@@ -72,7 +72,7 @@ export default function Home() {
       <div className="absolute bottom-8 right-8 z-[1000]">
         <Button
           size="lg"
-          className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
+          className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
           onClick={() => setUploadModalOpen(true)}
         >
           <Camera className="h-8 w-8" />
