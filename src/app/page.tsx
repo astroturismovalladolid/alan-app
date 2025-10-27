@@ -42,12 +42,12 @@ export default function Home() {
     <main className="relative h-screen w-screen">
       <Map />
       <div className="absolute top-8 left-8 z-[1000]">
-        <h1 className="text-5xl font-bold tracking-wider text-white dark:text-black night:text-red-500 [text-shadow:2px_2px_4px_rgba(0,0,0,0.3)] dark:[text-shadow:2px_2px_4px_rgba(255,255,255,0.2)] night:[text-shadow:2px_2px_4px_rgba(0,0,0,0.5)]">ALAN</h1>
+        <h1 className="text-5xl font-bold tracking-wider text-white dark:text-black night:text-primary [text-shadow:2px_2px_4px_rgba(0,0,0,0.3)] dark:[text-shadow:2px_2px_4px_rgba(255,255,255,0.2)] night:[text-shadow:2px_2px_4px_rgba(0,0,0,0.5)]">ALAN</h1>
       </div>
        <div className="absolute top-8 right-8 z-[1000]">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex h-auto items-center gap-3 rounded-full bg-card p-2 pr-4 text-card-foreground shadow-lg hover:bg-accent">
+            <Button variant="ghost" className="flex h-auto items-center gap-3 rounded-full bg-card p-2 pr-4 text-card-foreground shadow-lg hover:bg-accent night:hover:bg-accent/50 night:bg-card/80">
               <Avatar className="h-9 w-9">
                 <AvatarImage src={userAvatar} alt="Alex Doe" />
                 <AvatarFallback>AD</AvatarFallback>
@@ -72,10 +72,10 @@ export default function Home() {
       <div className="absolute bottom-8 right-8 z-[1000]">
         <Button
           size="lg"
-          className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent"
+          className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
           onClick={() => setUploadModalOpen(true)}
         >
-          <Camera className="h-8 w-8 text-foreground" />
+          <Camera className="h-8 w-8" />
         </Button>
       </div>
 

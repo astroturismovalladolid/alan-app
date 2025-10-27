@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -97,6 +98,6 @@ export default {
   },
   plugins: [require('tailwindcss-animate')],
   safelist: [
-    'night:text-red-500'
+    'night:text-primary'
   ]
 } satisfies Config;

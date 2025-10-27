@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -85,7 +86,7 @@ body {
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 340 90% 60%; /* A brighter pink/magenta for highlights */
+    --primary: 0 100% 50%; /* Red for night mode */
     --primary-foreground: 0 0% 10%;
     --secondary: 240 4% 15%;
     --secondary-foreground: 0 0% 98%;
@@ -97,7 +98,7 @@ body {
     --destructive-foreground: 0 0% 98%;
     --border: 240 4% 15%;
     --input: 240 4% 15%;
-    --ring: 340 90% 60%;
+    --ring: 0 100% 50%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -105,12 +106,12 @@ body {
     --chart-5: 340 75% 55%;
     --sidebar-background: 240 10% 10%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 340 90% 60%;
+    --sidebar-primary: 0 100% 50%;
     --sidebar-primary-foreground: 0 0% 10%;
     --sidebar-accent: 240 4% 20%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 4% 15%;
-    --sidebar-ring: 340 90% 60%;
+    --sidebar-ring: 0 100% 50%;
   }
 }
 
