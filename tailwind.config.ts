@@ -96,4 +96,7 @@ export default {
     },
   },
   plugins: [require('tailwindcss-animate')],
+  safelist: [
+    'night:text-red-500'
+  ]
 } satisfies Config;

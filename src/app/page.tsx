@@ -42,7 +42,7 @@ export default function Home() {
     <main className="relative h-screen w-screen">
       <Map />
       <div className="absolute top-8 left-8 z-[1000]">
-        <h1 className="text-5xl font-bold text-foreground tracking-wider [text-shadow:_2px_2px_4px_rgb(0_0_0_/_50%)]" >ALAN</h1>
+        <h1 className="text-5xl font-bold tracking-wider text-white dark:text-black night:text-red-500 [text-shadow:2px_2px_4px_rgba(0,0,0,0.3)] dark:[text-shadow:2px_2px_4px_rgba(255,255,255,0.2)] night:[text-shadow:2px_2px_4px_rgba(0,0,0,0.5)]">ALAN</h1>
       </div>
        <div className="absolute top-8 right-8 z-[1000]">
         <DropdownMenu>
@@ -53,13 +53,13 @@ export default function Home() {
                 <AvatarFallback>AD</AvatarFallback>
               </Avatar>
               <div className="text-left">
-                <p className="text-sm font-medium">{t('username')}</p>
+                <p className="text-sm font-medium text-foreground">{t('username')}</p>
                 <p className="text-xs text-muted-foreground">{t('newbie')}</p>
               </div>
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 border-0 shadow-lg">
+          <DropdownMenuContent align="end" className="w-56 shadow-xl border-0">
             <DropdownMenuLabel>{t('myAccount')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => setProfileModalOpen(true)}>{t('profile')}</DropdownMenuItem>
@@ -75,7 +75,7 @@ export default function Home() {
           className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent"
           onClick={() => setUploadModalOpen(true)}
         >
-          <Camera className="h-8 w-8" />
+          <Camera className="h-8 w-8 text-foreground" />
         </Button>
       </div>
 
