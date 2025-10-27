@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/context/language-context';
 import { addObservation } from '@/lib/observations-service';
+import { useAuth } from '@/context/auth-context';
 
 const formSchema = z.object({
   latitude: z.number(),
@@ -71,6 +72,7 @@ interface UploadFormProps {
 export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { user } = useAuth();
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -130,9 +132,18 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+        toast({
+            variant: 'destructive',
+            title: t('notLoggedIn'),
+            description: t('logInToSubmit'),
+        });
+        return;
+    }
+
     setIsSubmitting(true);
     try {
-      const result = await addObservation(values);
+      const result = await addObservation({ ...values, authorId: user.uid });
       if (result.success) {
         toast({
           title: t('uploadSuccessful'),

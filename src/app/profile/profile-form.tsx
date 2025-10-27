@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,12 +10,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { UploadCloud, Save } from 'lucide-react';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useLanguage } from '@/context/language-context';
+import { useAuth } from '@/context/auth-context';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
 
 const profileFormSchema = z.object({
   username: z.string().min(2, 'Username must be at least 2 characters.'),
@@ -31,18 +34,39 @@ interface ProfileFormProps {
 export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const userAvatar = PlaceHolderImages.find(p => p.id === 'avatar4')?.imageUrl;
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(userAvatar || null);
+  const { user } = useAuth();
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      username: 'Alex Doe',
-      bio: t('defaultBio'),
-      avatar: userAvatar,
+      username: '',
+      bio: '',
+      avatar: '',
     },
   });
+
+  useEffect(() => {
+    if (user) {
+        const fetchUserData = async () => {
+            const userRef = doc(db, 'users', user.uid);
+            const docSnap = await getDoc(userRef);
+            if (docSnap.exists()) {
+                const userData = docSnap.data();
+                form.reset({
+                    username: userData.displayName || '',
+                    bio: userData.bio || '',
+                    avatar: userData.photoURL || '',
+                });
+                setAvatarPreview(userData.photoURL || null);
+            }
+        };
+        fetchUserData();
+    }
+  }, [user, form]);
+
+
 
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -51,18 +75,36 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
       reader.onloadend = () => {
         const dataUrl = reader.result as string;
         setAvatarPreview(dataUrl);
-        form.setValue('avatar', dataUrl);
+        form.setValue('avatar', dataUrl, { shouldDirty: true });
       };
       reader.readAsDataURL(file);
     }
   };
 
-  function onSubmit(data: ProfileFormValues) {
-    console.log(data);
+  async function onSubmit(data: ProfileFormValues) {
+    if (!user) return;
+
+    let avatarUrl = form.getValues('avatar');
+    // If a new avatar has been selected (it will be a data URL)
+    if (form.formState.dirtyFields.avatar && data.avatar && data.avatar.startsWith('data:image')) {
+        const storage = getStorage();
+        const avatarRef = ref(storage, `avatars/${user.uid}`);
+        await uploadString(avatarRef, data.avatar, 'data_url');
+        avatarUrl = await getDownloadURL(avatarRef);
+    }
+
+    const userRef = doc(db, 'users', user.uid);
+    await updateDoc(userRef, {
+        displayName: data.username,
+        bio: data.bio,
+        photoURL: avatarUrl,
+    });
+
     toast({
       title: t('profileUpdated'),
       description: t('yourChangesHaveBeenSaved'),
     });
+
     if (onUpdateSuccess) {
       onUpdateSuccess();
     }

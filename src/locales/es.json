@@ -47,5 +47,7 @@
   "capturedImageAlt": "Imagen capturada",
   "uploadFailed": "Falló la Subida",
   "observationSubmitError": "Ocurrió un error al enviar tu observación. Por favor, inténtalo de nuevo.",
-  "submitting": "Enviando..."
+  "submitting": "Enviando...",
+  "notLoggedIn": "No has iniciado sesión",
+  "logInToSubmit": "Debes iniciar sesión para enviar una observación."
 }

@@ -12,6 +12,7 @@ const ObservationSchema = z.object({
   description: z.string().min(10),
   rating: z.number().min(1).max(5),
   image: z.string(),
+  authorId: z.string().optional(),
 });
 
 type ObservationInput = z.infer<typeof ObservationSchema>;
@@ -23,7 +24,7 @@ export async function addObservation(data: ObservationInput) {
     throw new Error(validation.error.message);
   }
 
-  const { image, latitude, longitude, description, rating } = validation.data;
+  const { image, latitude, longitude, description, rating, authorId } = validation.data;
 
   try {
     // 1. Upload image to Firebase Storage
@@ -40,7 +41,7 @@ export async function addObservation(data: ObservationInput) {
       description,
       rating,
       createdAt: serverTimestamp(),
-      author: 'Anonymous', // TODO: Replace with actual user
+      authorId: authorId,
     });
 
     console.log('Document written with ID: ', docRef.id);

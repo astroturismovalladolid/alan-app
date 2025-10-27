@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -23,20 +24,38 @@ import {
 import { UploadForm } from './upload/upload-form';
 import { ProfileForm } from './profile/profile-form';
 import { SettingsForm } from './settings/settings-form';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useLanguage } from '@/context/language-context';
 import dynamic from 'next/dynamic';
+import { useAuth } from '@/context/auth-context';
+import { auth } from '@/lib/firebase';
+import { signOut } from 'firebase/auth';
 
 export default function Home() {
   const [isUploadModalOpen, setUploadModalOpen] = useState(false);
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
   const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
-  const userAvatar = PlaceHolderImages.find(p => p.id === 'avatar4')?.imageUrl;
   const { t } = useLanguage();
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
 
   const Map = useMemo(() => dynamic(() => import('@/components/map'), { 
     ssr: false 
   }), []);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/login');
+  };
+  
+  if (loading || !user) {
+    return null; // Or a loading spinner
+  }
 
   return (
     <main className="relative h-screen w-screen">
@@ -49,11 +68,11 @@ export default function Home() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex h-auto items-center gap-3 rounded-full bg-card p-2 pr-4 text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:text-primary-foreground night:hover:bg-primary/90">
               <Avatar className="h-9 w-9">
-                <AvatarImage src={userAvatar} alt="Alex Doe" />
-                <AvatarFallback>AD</AvatarFallback>
+                <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
+                <AvatarFallback>{user.displayName?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
               </Avatar>
               <div className="text-left">
-                <p className="text-sm font-medium">{t('username')}</p>
+                <p className="text-sm font-medium">{user.displayName || t('username')}</p>
                 <p className="text-xs text-muted-foreground">{t('newbie')}</p>
               </div>
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -65,7 +84,7 @@ export default function Home() {
             <DropdownMenuItem onSelect={() => setProfileModalOpen(true)}>{t('profile')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setSettingsModalOpen(true)}>{t('settings')}</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>{t('logOut')}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleLogout}>{t('logOut')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

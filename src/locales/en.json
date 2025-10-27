@@ -47,5 +47,7 @@
   "capturedImageAlt": "Captured image",
   "uploadFailed": "Upload Failed",
   "observationSubmitError": "There was an error submitting your observation. Please try again.",
-  "submitting": "Submitting..."
+  "submitting": "Submitting...",
+  "notLoggedIn": "Not Logged In",
+  "logInToSubmit": "You must be logged in to submit an observation."
 }
