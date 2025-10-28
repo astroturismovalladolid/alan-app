@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/context/auth-context';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { Aperture } from 'lucide-react';
+import { Aperture, Loader2 } from 'lucide-react';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
@@ -40,11 +40,16 @@ export default function LoginPage() {
         }
     };
     
-    if (loading || user) {
+    if (loading) {
         return <div className="flex h-screen w-screen items-center justify-center">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
         </div>;
     }
+    
+    if (user) {
+        return null;
+    }
+
 
     return (
         <main className="flex h-screen w-screen items-center justify-center bg-background p-4">
