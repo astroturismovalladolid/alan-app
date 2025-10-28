@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Camera, ChevronDown, Loader2 } from 'lucide-react';
+import { Camera, ChevronDown } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -53,16 +53,9 @@ export default function Home() {
     router.push('/login');
   };
   
-  if (loading) {
-    return <div className="flex h-screen w-screen items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-    </div>;
+  if (loading || !user) {
+    return null; // The AuthProvider will show a loader or the login page will be shown
   }
-
-  if (!user) {
-    return null;
-  }
-
 
   return (
     <main className="relative h-screen w-screen">
