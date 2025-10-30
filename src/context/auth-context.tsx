@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 
 interface AuthContextType {
@@ -22,19 +22,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // User is signed in.
+        // We use setDoc with merge:true to either create the user document or update it
+        // without overwriting existing fields like 'bio'.
+        // This avoids a read-before-write which can cause security rule issues.
         const userRef = doc(db, 'users', user.uid);
-        const docSnap = await getDoc(userRef);
-        if (!docSnap.exists()) {
-          // Create user profile if it doesn't exist
-          await setDoc(userRef, {
+        await setDoc(userRef, {
             uid: user.uid,
             displayName: user.displayName,
             email: user.email,
             photoURL: user.photoURL,
-            createdAt: serverTimestamp(),
-            bio: ''
-          });
-        }
+            lastLogin: serverTimestamp(),
+            // Only set createdAt on initial creation
+            createdAt: serverTimestamp(), 
+          }, { merge: true });
+          
         setUser(user);
       } else {
         // User is signed out.
