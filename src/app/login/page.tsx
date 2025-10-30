@@ -36,7 +36,7 @@ export default function LoginPage() {
         const provider = new GoogleAuthProvider();
         try {
             await signInWithPopup(auth, provider);
-            router.push('/');
+            // No router.push here. useEffect will handle it.
         } catch (error) {
             console.error("Error signing in with Google: ", error);
         }
