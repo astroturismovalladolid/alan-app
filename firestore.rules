@@ -1,16 +1,17 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow public read for observations
-    match /observations/{observationId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-    }
-    
-    // Users can only read and write their own data
+
+    // Allow logged-in users to read and write to their own user profile
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Allow anyone to read observations, but only logged-in users to create them.
+    match /observations/{observationId} {
+      allow read: if true;
       allow create: if request.auth != null;
     }
   }
