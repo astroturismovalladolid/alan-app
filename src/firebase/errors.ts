@@ -13,4 +13,6 @@ export class FirestorePermissionError extends Error {
     const message = `FirestoreError: Missing or insufficient permissions: The following request was denied by Firestore Security Rules:\n${JSON.stringify(context, null, 2)}`;
     super(message);
     this.name = 'FirestorePermissionError';
-    
+    this.context = context;
+  }
+}
