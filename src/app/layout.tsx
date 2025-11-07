@@ -7,6 +7,8 @@ import 'leaflet/dist/leaflet.css';
 import { useEffect } from 'react';
 import { LanguageProvider } from '@/context/language-context';
 import { AuthProvider } from '@/context/auth-context';
+import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
+
 
 // export const metadata: Metadata = {
 //   title: 'ALAN - Anti-Light-Pollution Action Network',
@@ -34,6 +36,7 @@ export default function RootLayout({
           <LanguageProvider>
             {children}
             <Toaster />
+            <FirebaseErrorListener />
           </LanguageProvider>
         </AuthProvider>
       </body>

@@ -6,6 +6,9 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+import type { SecurityRuleContext } from '@/firebase/errors';
 
 interface AuthContextType {
   user: User | null;
@@ -21,30 +24,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // User is signed in.
         const userRef = doc(db, 'users', user.uid);
-        const docSnap = await getDoc(userRef);
+        const userDoc = await getDoc(userRef);
 
-        if (!docSnap.exists()) {
-          // New user, create the document
-          await setDoc(userRef, {
+        const userData = {
             uid: user.uid,
             displayName: user.displayName,
             email: user.email,
             photoURL: user.photoURL,
             lastLogin: serverTimestamp(),
-            createdAt: serverTimestamp(), 
-          });
+        };
+
+        if (!userDoc.exists()) {
+            // New user, create the document with createdAt
+             setDoc(userRef, {
+                ...userData,
+                createdAt: serverTimestamp(),
+            }).catch(async (serverError) => {
+                const permissionError = new FirestorePermissionError({
+                    path: userRef.path,
+                    operation: 'create',
+                    requestResourceData: userData,
+                } satisfies SecurityRuleContext);
+                errorEmitter.emit('permission-error', permissionError);
+            });
         } else {
             // Existing user, just update lastLogin
-            await setDoc(userRef, {
+             setDoc(userRef, {
                 lastLogin: serverTimestamp(),
-            }, { merge: true });
+            }, { merge: true }).catch(async (serverError) => {
+                const permissionError = new FirestorePermissionError({
+                    path: userRef.path,
+                    operation: 'update',
+                    requestResourceData: { lastLogin: new Date() },
+                } satisfies SecurityRuleContext);
+                errorEmitter.emit('permission-error', permissionError);
+            });
         }
-          
         setUser(user);
       } else {
-        // User is signed out.
         setUser(null);
       }
       setLoading(false);
@@ -53,17 +71,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  if (loading) {
-    return (
-        <div className="flex h-screen w-screen items-center justify-center">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        </div>
-    );
-  }
-
   return (
     <AuthContext.Provider value={{ user, loading }}>
-      {children}
+      {loading ? (
+        <div className="flex h-screen w-screen items-center justify-center bg-background">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };

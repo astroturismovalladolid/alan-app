@@ -18,6 +18,9 @@ import { useAuth } from '@/context/auth-context';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+import type { SecurityRuleContext } from '@/firebase/errors';
 
 const profileFormSchema = z.object({
   username: z.string().min(2, 'Username must be at least 2 characters.'),
@@ -51,8 +54,14 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
     if (user) {
         const fetchUserData = async () => {
             const userRef = doc(db, 'users', user.uid);
-            const docSnap = await getDoc(userRef);
-            if (docSnap.exists()) {
+            const docSnap = await getDoc(userRef).catch(async (serverError) => {
+                 const permissionError = new FirestorePermissionError({
+                    path: userRef.path,
+                    operation: 'get',
+                } satisfies SecurityRuleContext);
+                errorEmitter.emit('permission-error', permissionError);
+            });
+            if (docSnap && docSnap.exists()) {
                 const userData = docSnap.data();
                 form.reset({
                     username: userData.displayName || '',
@@ -94,10 +103,18 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
     }
 
     const userRef = doc(db, 'users', user.uid);
-    await updateDoc(userRef, {
+    const updatedData = {
         displayName: data.username,
         bio: data.bio,
         photoURL: avatarUrl,
+    };
+    updateDoc(userRef, updatedData).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: userRef.path,
+            operation: 'update',
+            requestResourceData: updatedData,
+        } satisfies SecurityRuleContext);
+        errorEmitter.emit('permission-error', permissionError);
     });
 
     toast({

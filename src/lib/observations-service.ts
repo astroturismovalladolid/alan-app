@@ -1,10 +1,12 @@
-
 'use server';
 
 import { db, storage } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { z } from 'zod';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+import type { SecurityRuleContext } from '@/firebase/errors';
 
 const ObservationSchema = z.object({
   latitude: z.number(),
@@ -34,7 +36,7 @@ export async function addObservation(data: ObservationInput) {
     const imageUrl = await getDownloadURL(uploadResult.ref);
 
     // 2. Add observation data to Firestore
-    const docRef = await addDoc(collection(db, 'observations'), {
+    const observationData = {
       imageUrl,
       latitude,
       longitude,
@@ -42,10 +44,22 @@ export async function addObservation(data: ObservationInput) {
       rating,
       createdAt: serverTimestamp(),
       authorId: authorId,
+    };
+    
+    addDoc(collection(db, 'observations'), observationData).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: 'observations',
+            operation: 'create',
+            requestResourceData: observationData,
+        } satisfies SecurityRuleContext);
+        errorEmitter.emit('permission-error', permissionError);
+    }).then((docRef) => {
+        if(docRef) {
+            console.log('Document written with ID: ', docRef.id);
+        }
     });
 
-    console.log('Document written with ID: ', docRef.id);
-    return { success: true, docId: docRef.id };
+    return { success: true };
   } catch (e) {
     console.error('Error adding document: ', e);
     return { success: false, error: 'Failed to add observation.' };
