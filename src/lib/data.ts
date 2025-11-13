@@ -66,3 +66,43 @@ export const mockImages: LightPollutionImage[] = [
     timestamp: '2024-05-11T23:50:00Z',
   },
 ];
+
+export interface ForumTopic {
+  id: string;
+  title: string;
+  postCount: number;
+  lastActivity: string;
+}
+
+export const mockForumTopics: ForumTopic[] = [
+  {
+    id: '1',
+    title: 'Best practices for measuring light pollution',
+    postCount: 24,
+    lastActivity: '2 hours ago',
+  },
+  {
+    id: '2',
+    title: 'How to advocate for dark sky policies in your city',
+    postCount: 18,
+    lastActivity: '5 hours ago',
+  },
+  {
+    id: '3',
+    title: 'Share your astrophotography tips',
+    postCount: 42,
+    lastActivity: '1 day ago',
+  },
+  {
+    id: '4',
+    title: 'LED street lights: pros and cons',
+    postCount: 31,
+    lastActivity: '2 days ago',
+  },
+  {
+    id: '5',
+    title: 'Dark sky preserves around the world',
+    postCount: 15,
+    lastActivity: '3 days ago',
+  },
+];

@@ -7,8 +7,9 @@ import { MapPin, User, Calendar } from 'lucide-react';
 import { AiAnalysis } from './ai-analysis';
 import { Separator } from '@/components/ui/separator';
 
-export default function ImageDetailPage({ params }: { params: { id: string } }) {
-  const image = mockImages.find((img) => img.id === params.id);
+export default async function ImageDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const image = mockImages.find((img) => img.id === id);
 
   if (!image) {
     notFound();

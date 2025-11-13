@@ -45,19 +45,9 @@ export async function addObservation(data: ObservationInput) {
       createdAt: serverTimestamp(),
       authorId: authorId,
     };
-    
-    addDoc(collection(db, 'observations'), observationData).catch(async (serverError) => {
-        const permissionError = new FirestorePermissionError({
-            path: 'observations',
-            operation: 'create',
-            requestResourceData: observationData,
-        } satisfies SecurityRuleContext);
-        errorEmitter.emit('permission-error', permissionError);
-    }).then((docRef) => {
-        if(docRef) {
-            console.log('Document written with ID: ', docRef.id);
-        }
-    });
+
+    const docRef = await addDoc(collection(db, 'observations'), observationData);
+    console.log('Document written with ID: ', docRef.id);
 
     return { success: true };
   } catch (e) {
