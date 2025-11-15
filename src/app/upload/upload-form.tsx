@@ -77,6 +77,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -133,15 +134,12 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user) {
-        toast({
-            variant: 'destructive',
-            title: t('notLoggedIn'),
-            description: t('logInToSubmit'),
-        });
+        setUploadError(t('logInToSubmit'));
         return;
     }
 
     setIsSubmitting(true);
+    setUploadError(null); // Clear previous errors
     try {
       const result = await addObservation({ ...values, authorId: user.uid });
       if (result.success) {
@@ -157,11 +155,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       }
     } catch (error: any) {
       const errorDescription = error?.message || t('observationSubmitError');
-      toast({
-        variant: 'destructive',
-        title: t('uploadFailed'),
-        description: errorDescription,
-      });
+      setUploadError(errorDescription);
       console.error('Upload error:', error);
     } finally {
       setIsSubmitting(false);
@@ -256,6 +250,22 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
                 </FormItem>
               )}
             />
+
+            {uploadError && (
+              <div className="rounded-md bg-destructive/15 p-4 border border-destructive/30">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 h-5 w-5 text-destructive">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-destructive">{t('uploadFailed')}</h3>
+                    <p className="mt-1 text-sm text-destructive/90">{uploadError}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
