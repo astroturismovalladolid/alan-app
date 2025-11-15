@@ -155,13 +155,14 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       } else {
         throw new Error(result.error);
       }
-    } catch (error) {
+    } catch (error: any) {
+      const errorDescription = error?.message || t('observationSubmitError');
       toast({
         variant: 'destructive',
         title: t('uploadFailed'),
-        description: t('observationSubmitError'),
+        description: errorDescription,
       });
-      console.error(error);
+      console.error('Upload error:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -176,7 +177,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
               <FormLabel>{t('image')}</FormLabel>
               <div className="relative w-full aspect-video bg-card border rounded-md overflow-hidden flex items-center justify-center">
                 {capturedImage ? (
-                  <img src={capturedImage} alt={t('capturedImageAlt')} className="w-full h-full object-cover" />
+                  <img src={capturedImage} alt={t('capturedImageAlt')} className="max-w-full max-h-full object-contain" />
                 ) : null}
               </div>
               <div className="mt-2 flex gap-2">

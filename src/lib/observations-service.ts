@@ -50,8 +50,19 @@ export async function addObservation(data: ObservationInput) {
     console.log('Document written with ID: ', docRef.id);
 
     return { success: true };
-  } catch (e) {
+  } catch (e: any) {
     console.error('Error adding document: ', e);
-    return { success: false, error: 'Failed to add observation.' };
+
+    // Provide more specific error messages
+    let errorMessage = 'Failed to add observation.';
+    if (e.code === 'storage/unauthorized') {
+      errorMessage = 'Storage permission denied. Please enable Firebase Storage and configure security rules.';
+    } else if (e.code === 'permission-denied') {
+      errorMessage = 'Firestore permission denied. Please configure Firestore security rules.';
+    } else if (e.message) {
+      errorMessage = e.message;
+    }
+
+    return { success: false, error: errorMessage };
   }
 }
