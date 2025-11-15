@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +24,8 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function LoginPage() {
     const { user, loading } = useAuth();
     const router = useRouter();
+    const [error, setError] = React.useState<string | null>(null);
+    const [signingIn, setSigningIn] = React.useState(false);
 
     useEffect(() => {
         if (!loading && user) {
@@ -33,10 +36,25 @@ export default function LoginPage() {
 
     const handleGoogleSignIn = async () => {
         try {
+            setError(null);
+            setSigningIn(true);
             await signInWithPopup(auth, googleProvider);
             // No router.push here. useEffect will handle it.
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error signing in with Google: ", error);
+
+            // Show user-friendly error messages
+            if (error.code === 'auth/unauthorized-domain') {
+                setError('This domain is not authorized. Please add it in Firebase Console → Authentication → Settings → Authorized domains');
+            } else if (error.code === 'auth/popup-closed-by-user') {
+                setError('Sign-in cancelled. Please try again.');
+            } else if (error.code === 'auth/popup-blocked') {
+                setError('Pop-up blocked by browser. Please allow pop-ups for this site.');
+            } else {
+                setError(`Sign-in failed: ${error.message || 'Unknown error'}`);
+            }
+        } finally {
+            setSigningIn(false);
         }
     };
     
@@ -60,10 +78,29 @@ export default function LoginPage() {
                     <CardTitle className="text-2xl">Welcome Back</CardTitle>
                     <CardDescription>Sign in to continue to the ALAN platform.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <Button onClick={handleGoogleSignIn} className="w-full" size="lg">
-                        <GoogleIcon className="mr-2" />
-                        Sign in with Google
+                <CardContent className="space-y-4">
+                    {error && (
+                        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                            {error}
+                        </div>
+                    )}
+                    <Button
+                        onClick={handleGoogleSignIn}
+                        className="w-full"
+                        size="lg"
+                        disabled={signingIn}
+                    >
+                        {signingIn ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Signing in...
+                            </>
+                        ) : (
+                            <>
+                                <GoogleIcon className="mr-2" />
+                                Sign in with Google
+                            </>
+                        )}
                     </Button>
                 </CardContent>
             </Card>
