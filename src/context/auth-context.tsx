@@ -24,44 +24,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userRef);
-
-        const userData = {
-            uid: user.uid,
-            displayName: user.displayName,
-            email: user.email,
-            photoURL: user.photoURL,
-            lastLogin: serverTimestamp(),
-        };
-
-        if (!userDoc.exists()) {
-            // New user, create the document with createdAt
-             setDoc(userRef, {
-                ...userData,
-                createdAt: serverTimestamp(),
-            }).catch(async (serverError) => {
-                const permissionError = new FirestorePermissionError({
-                    path: userRef.path,
-                    operation: 'create',
-                    requestResourceData: userData,
-                } satisfies SecurityRuleContext);
-                errorEmitter.emit('permission-error', permissionError);
-            });
-        } else {
-            // Existing user, just update lastLogin
-             setDoc(userRef, {
-                lastLogin: serverTimestamp(),
-            }, { merge: true }).catch(async (serverError) => {
-                const permissionError = new FirestorePermissionError({
-                    path: userRef.path,
-                    operation: 'update',
-                    requestResourceData: { lastLogin: new Date() },
-                } satisfies SecurityRuleContext);
-                errorEmitter.emit('permission-error', permissionError);
-            });
-        }
         setUser(user);
+
+        // Try to sync user data to Firestore, but don't block on it
+        try {
+          const userRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userRef);
+
+          const userData = {
+              uid: user.uid,
+              displayName: user.displayName,
+              email: user.email,
+              photoURL: user.photoURL,
+              lastLogin: serverTimestamp(),
+          };
+
+          if (!userDoc.exists()) {
+              // New user, create the document with createdAt
+              await setDoc(userRef, {
+                  ...userData,
+                  createdAt: serverTimestamp(),
+              });
+          } else {
+              // Existing user, just update lastLogin
+              await setDoc(userRef, {
+                  lastLogin: serverTimestamp(),
+              }, { merge: true });
+          }
+        } catch (error: any) {
+          // Log the error but don't block user authentication
+          console.warn('Failed to sync user data to Firestore:', error);
+          if (error.code === 'permission-denied') {
+            console.warn('Firestore permission denied. Please configure Firestore security rules for users collection.');
+          }
+        }
       } else {
         setUser(null);
       }
