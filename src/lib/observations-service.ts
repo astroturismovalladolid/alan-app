@@ -1,12 +1,7 @@
-'use server';
-
 import { db, storage } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { z } from 'zod';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
-import type { SecurityRuleContext } from '@/firebase/errors';
 
 const ObservationSchema = z.object({
   latitude: z.number(),
