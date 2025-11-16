@@ -10,6 +10,7 @@ const ObservationSchema = z.object({
   rating: z.number().min(1).max(5),
   image: z.string(),
   authorId: z.string().optional(),
+  authorName: z.string().optional(),
 });
 
 type ObservationInput = z.infer<typeof ObservationSchema>;
@@ -21,7 +22,7 @@ export async function addObservation(data: ObservationInput) {
     throw new Error(validation.error.message);
   }
 
-  const { image, latitude, longitude, description, rating, authorId } = validation.data;
+  const { image, latitude, longitude, description, rating, authorId, authorName } = validation.data;
 
   try {
     // 1. Upload image to Firebase Storage
@@ -40,6 +41,7 @@ export async function addObservation(data: ObservationInput) {
       ratings: { [authorId!]: rating }, // Store ratings as map of userId -> rating
       createdAt: serverTimestamp(),
       authorId: authorId,
+      authorName: authorName || 'Anonymous',
       reports: [], // Initialize empty reports array
     };
 

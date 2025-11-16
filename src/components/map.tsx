@@ -153,12 +153,19 @@ function MapComponent() {
           {selectedObservation && (
             <ObservationPopup
               observation={selectedObservation}
+              authorName={selectedObservation.authorName}
               onRatingAdded={() => {
                 // Reload observations after rating is added
                 fetchObservations().then(setObservations);
               }}
               onReported={() => {
                 // Reload observations after report is submitted
+                fetchObservations().then(setObservations);
+              }}
+              onDeleted={() => {
+                // Close modal and reload observations after deletion
+                setIsModalOpen(false);
+                setSelectedObservation(null);
                 fetchObservations().then(setObservations);
               }}
             />

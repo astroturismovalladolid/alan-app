@@ -1,5 +1,6 @@
-import { db } from '@/lib/firebase';
-import { collection, query, getDocs, doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
+import { db, storage } from '@/lib/firebase';
+import { collection, query, getDocs, doc, updateDoc, arrayUnion, getDoc, deleteDoc } from 'firebase/firestore';
+import { ref, deleteObject } from 'firebase/storage';
 
 export interface Observation {
   id: string;
@@ -10,6 +11,7 @@ export interface Observation {
   rating: number;
   ratings: { [userId: string]: number }; // Map of userId to rating value
   authorId: string;
+  authorName?: string;
   createdAt: any;
   reports: Array<{
     userId: string;
@@ -55,6 +57,7 @@ export async function fetchObservations(): Promise<Observation[]> {
         rating: Math.round(averageRating),
         ratings: ratingsMap,
         authorId: data.authorId,
+        authorName: data.authorName,
         createdAt: data.createdAt,
         reports: data.reports || [],
       });
@@ -124,6 +127,28 @@ export async function reportObservation(
     return { success: true };
   } catch (error: any) {
     console.error('Error reporting observation:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteObservation(observationId: string, imageUrl: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Delete image from Storage
+    try {
+      const imageRef = ref(storage, imageUrl);
+      await deleteObject(imageRef);
+    } catch (storageError) {
+      console.warn('Failed to delete image from storage:', storageError);
+      // Continue even if storage deletion fails
+    }
+
+    // Delete document from Firestore
+    const observationRef = doc(db, 'observations', observationId);
+    await deleteDoc(observationRef);
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error deleting observation:', error);
     return { success: false, error: error.message };
   }
 }

@@ -93,37 +93,40 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
   async function onSubmit(data: ProfileFormValues) {
     if (!user) return;
 
-    let avatarUrl = form.getValues('avatar');
-    // If a new avatar has been selected (it will be a data URL)
-    if (form.formState.dirtyFields.avatar && data.avatar && data.avatar.startsWith('data:image')) {
-        const storage = getStorage();
-        const avatarRef = ref(storage, `avatars/${user.uid}`);
-        await uploadString(avatarRef, data.avatar, 'data_url');
-        avatarUrl = await getDownloadURL(avatarRef);
-    }
+    try {
+      let avatarUrl = form.getValues('avatar');
+      // If a new avatar has been selected (it will be a data URL)
+      if (form.formState.dirtyFields.avatar && data.avatar && data.avatar.startsWith('data:image')) {
+          const storage = getStorage();
+          const avatarRef = ref(storage, `avatars/${user.uid}`);
+          await uploadString(avatarRef, data.avatar, 'data_url');
+          avatarUrl = await getDownloadURL(avatarRef);
+      }
 
-    const userRef = doc(db, 'users', user.uid);
-    const updatedData = {
-        displayName: data.username,
-        bio: data.bio,
-        photoURL: avatarUrl,
-    };
-    updateDoc(userRef, updatedData).catch(async (serverError) => {
-        const permissionError = new FirestorePermissionError({
-            path: userRef.path,
-            operation: 'update',
-            requestResourceData: updatedData,
-        } satisfies SecurityRuleContext);
-        errorEmitter.emit('permission-error', permissionError);
-    });
+      const userRef = doc(db, 'users', user.uid);
+      const updatedData = {
+          displayName: data.username,
+          bio: data.bio,
+          photoURL: avatarUrl,
+      };
 
-    toast({
-      title: t('profileUpdated'),
-      description: t('yourChangesHaveBeenSaved'),
-    });
+      await updateDoc(userRef, updatedData);
 
-    if (onUpdateSuccess) {
-      onUpdateSuccess();
+      toast({
+        title: t('profileUpdated'),
+        description: t('yourChangesHaveBeenSaved'),
+      });
+
+      if (onUpdateSuccess) {
+        onUpdateSuccess();
+      }
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
+      toast({
+        variant: 'destructive',
+        title: t('error'),
+        description: error.message || t('failedToUpdateProfile'),
+      });
     }
   }
 

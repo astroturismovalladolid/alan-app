@@ -1,23 +1,26 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Star, MapPin, Flag, Loader2 } from 'lucide-react';
+import { Star, MapPin, Flag, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/context/auth-context';
-import { addRating, reportObservation, type Observation } from '@/lib/observations-fetch';
+import { addRating, reportObservation, deleteObservation, type Observation } from '@/lib/observations-fetch';
 import { cn } from '@/lib/utils';
 
 interface ObservationPopupProps {
   observation: Observation;
   onRatingAdded: () => void;
   onReported: () => void;
+  onDeleted: () => void;
+  authorName?: string;
 }
 
-export function ObservationPopup({ observation, onRatingAdded, onReported }: ObservationPopupProps) {
+export function ObservationPopup({ observation, onRatingAdded, onReported, onDeleted, authorName }: ObservationPopupProps) {
   const { user } = useAuth();
   const [showRatingForm, setShowRatingForm] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [newRating, setNewRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [reportReason, setReportReason] = useState('');
@@ -89,6 +92,31 @@ export function ObservationPopup({ observation, onRatingAdded, onReported }: Obs
     setIsSubmitting(false);
   };
 
+  const handleDelete = async () => {
+    if (!user || !isAuthor) {
+      setError('You must be the author to delete this observation');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+    setSuccess(null);
+
+    const result = await deleteObservation(observation.id, observation.imageUrl);
+
+    if (result.success) {
+      setSuccess('Observation deleted successfully');
+      setTimeout(() => {
+        onDeleted();
+      }, 1000);
+    } else {
+      setError(result.error || 'Failed to delete observation');
+      setShowDeleteConfirm(false);
+    }
+
+    setIsSubmitting(false);
+  };
+
   return (
     <div className="w-full max-w-sm">
       {/* Image */}
@@ -124,6 +152,13 @@ export function ObservationPopup({ observation, onRatingAdded, onReported }: Obs
 
         {/* Description */}
         <p className="text-sm text-foreground line-clamp-3">{observation.description}</p>
+
+        {/* Author */}
+        {authorName && (
+          <div className="text-xs text-muted-foreground">
+            By {authorName}
+          </div>
+        )}
 
         {/* Location */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -271,10 +306,55 @@ export function ObservationPopup({ observation, onRatingAdded, onReported }: Obs
           </div>
         )}
 
-        {/* Message for author */}
+        {/* Author actions */}
         {isAuthor && (
-          <div className="text-xs text-muted-foreground italic pt-2 border-t">
-            This is your observation
+          <div className="space-y-2 pt-2 border-t">
+            {!showDeleteConfirm ? (
+              <>
+                <div className="text-xs text-muted-foreground italic">
+                  This is your observation
+                </div>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  className="w-full"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  disabled={isSubmitting}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Delete Observation
+                </Button>
+              </>
+            ) : (
+              <div className="space-y-3">
+                <div className="text-sm font-medium text-destructive">
+                  Are you sure you want to delete this observation?
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  This action cannot be undone. The observation and its image will be permanently deleted.
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowDeleteConfirm(false)}
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={handleDelete}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+                    Yes, Delete
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

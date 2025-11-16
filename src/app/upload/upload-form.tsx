@@ -116,9 +116,36 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const dataUrl = reader.result as string;
-        setCapturedImage(dataUrl);
-        form.setValue('image', dataUrl);
+        const img = new Image();
+        img.onload = () => {
+          // Resize image to max 1200px width/height while maintaining aspect ratio
+          const maxSize = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxSize || height > maxSize) {
+            if (width > height) {
+              height = (height / width) * maxSize;
+              width = maxSize;
+            } else {
+              width = (width / height) * maxSize;
+              height = maxSize;
+            }
+          }
+
+          // Create canvas and resize
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // Convert to JPEG with 85% quality
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          setCapturedImage(compressedDataUrl);
+          form.setValue('image', compressedDataUrl);
+        };
+        img.src = reader.result as string;
       };
       reader.readAsDataURL(file);
     }
@@ -141,7 +168,11 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     setIsSubmitting(true);
     setUploadError(null); // Clear previous errors
     try {
-      const result = await addObservation({ ...values, authorId: user.uid });
+      const result = await addObservation({
+        ...values,
+        authorId: user.uid,
+        authorName: user.displayName || 'Anonymous'
+      });
       if (result.success) {
         toast({
           title: t('uploadSuccessful'),
@@ -169,9 +200,9 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormItem>
               <FormLabel>{t('image')}</FormLabel>
-              <div className="relative w-full aspect-video bg-card border rounded-md overflow-hidden flex items-center justify-center">
+              <div className="relative w-full min-h-[200px] max-h-[400px] bg-card border rounded-md overflow-hidden flex items-center justify-center">
                 {capturedImage ? (
-                  <img src={capturedImage} alt={t('capturedImageAlt')} className="max-w-full max-h-full object-contain" />
+                  <img src={capturedImage} alt={t('capturedImageAlt')} className="w-full h-full object-contain" />
                 ) : null}
               </div>
               <div className="mt-2 flex gap-2">
