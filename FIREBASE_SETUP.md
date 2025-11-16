@@ -59,11 +59,22 @@ service cloud.firestore {
       // Authenticated users can create observations
       allow create: if request.auth != null
                     && request.resource.data.authorId == request.auth.uid;
+
       // Anyone can read observations (for the public map)
       allow read: if true;
-      // Only the author can update/delete their observations
-      allow update, delete: if request.auth != null
-                            && resource.data.authorId == request.auth.uid;
+
+      // Author can delete their observations
+      allow delete: if request.auth != null
+                    && resource.data.authorId == request.auth.uid;
+
+      // Author can update their own observations
+      // Other authenticated users can add ratings and reports
+      allow update: if request.auth != null && (
+        // Author can update everything
+        resource.data.authorId == request.auth.uid ||
+        // Non-authors can only update ratings and reports fields
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ratings', 'rating', 'reports']))
+      );
     }
   }
 }

@@ -37,8 +37,10 @@ export async function addObservation(data: ObservationInput) {
       longitude,
       description,
       rating,
+      ratings: [rating], // Store ratings as array for averaging
       createdAt: serverTimestamp(),
       authorId: authorId,
+      reports: [], // Initialize empty reports array
     };
 
     const docRef = await addDoc(collection(db, 'observations'), observationData);
