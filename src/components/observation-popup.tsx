@@ -26,7 +26,10 @@ export function ObservationPopup({ observation, onRatingAdded, onReported }: Obs
   const [success, setSuccess] = useState<string | null>(null);
 
   const isAuthor = user?.uid === observation.authorId;
-  const averageRating = observation.ratings.reduce((a, b) => a + b, 0) / observation.ratings.length;
+  const ratingValues = Object.values(observation.ratings);
+  const averageRating = ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length;
+  const userHasRated = user?.uid ? observation.ratings[user.uid] !== undefined : false;
+  const userRating = user?.uid ? observation.ratings[user.uid] : undefined;
 
   const handleRatingSubmit = async () => {
     if (newRating === 0) {
@@ -34,14 +37,19 @@ export function ObservationPopup({ observation, onRatingAdded, onReported }: Obs
       return;
     }
 
+    if (!user) {
+      setError('You must be logged in to rate');
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
     setSuccess(null);
 
-    const result = await addRating(observation.id, newRating);
+    const result = await addRating(observation.id, user.uid, newRating);
 
     if (result.success) {
-      setSuccess('Rating added successfully!');
+      setSuccess(userHasRated ? 'Rating updated successfully!' : 'Rating added successfully!');
       setShowRatingForm(false);
       setNewRating(0);
       onRatingAdded();
@@ -110,7 +118,7 @@ export function ObservationPopup({ observation, onRatingAdded, onReported }: Obs
             ))}
           </div>
           <span className="text-sm text-muted-foreground">
-            {averageRating.toFixed(1)} ({observation.ratings.length} {observation.ratings.length === 1 ? 'rating' : 'ratings'})
+            {averageRating.toFixed(1)} ({ratingValues.length} {ratingValues.length === 1 ? 'rating' : 'ratings'})
           </span>
         </div>
 
@@ -148,16 +156,24 @@ export function ObservationPopup({ observation, onRatingAdded, onReported }: Obs
         {/* Actions (only for non-authors) */}
         {!isAuthor && user && (
           <div className="space-y-2 pt-2 border-t">
+            {userHasRated && !showRatingForm && !showReportForm && (
+              <div className="text-xs text-muted-foreground">
+                Your rating: {userRating} ⭐
+              </div>
+            )}
             {!showRatingForm && !showReportForm && (
               <div className="flex gap-2">
                 <Button
                   size="sm"
                   variant="outline"
                   className="flex-1"
-                  onClick={() => setShowRatingForm(true)}
+                  onClick={() => {
+                    setShowRatingForm(true);
+                    setNewRating(userRating || 0);
+                  }}
                 >
                   <Star className="h-4 w-4 mr-1" />
-                  Rate
+                  {userHasRated ? 'Change Rating' : 'Rate'}
                 </Button>
                 <Button
                   size="sm"

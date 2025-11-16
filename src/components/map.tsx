@@ -5,7 +5,12 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { fetchObservations, type Observation } from '@/lib/observations-fetch';
 import { ObservationPopup } from './observation-popup';
-import { createRoot } from 'react-dom/client';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 // Fix for default icon path in Leaflet with webpack
 // This should be done once, outside the component
@@ -56,6 +61,8 @@ function MapComponent() {
   const markersRef = useRef<L.Marker[]>([]);
   const [isClient, setIsClient] = useState(false);
   const [observations, setObservations] = useState<Observation[]>([]);
+  const [selectedObservation, setSelectedObservation] = useState<Observation | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -117,27 +124,10 @@ function MapComponent() {
         icon: getIconForRating(observation.rating),
       }).addTo(mapRef.current!);
 
-      // Create popup container
-      const popupContainer = document.createElement('div');
-      const root = createRoot(popupContainer);
-
-      root.render(
-        <ObservationPopup
-          observation={observation}
-          onRatingAdded={() => {
-            // Reload observations after rating is added
-            fetchObservations().then(setObservations);
-          }}
-          onReported={() => {
-            // Reload observations after report is submitted
-            fetchObservations().then(setObservations);
-          }}
-        />
-      );
-
-      marker.bindPopup(popupContainer, {
-        maxWidth: 300,
-        minWidth: 250,
+      // Open modal on click
+      marker.on('click', () => {
+        setSelectedObservation(observation);
+        setIsModalOpen(true);
       });
 
       markersRef.current.push(marker);
@@ -151,7 +141,31 @@ function MapComponent() {
 
   // The div container for the map
   return (
-    <div ref={mapContainerRef} style={{ height: '100%', width: '100%', zIndex: 0 }} />
+    <>
+      <div ref={mapContainerRef} style={{ height: '100%', width: '100%', zIndex: 0 }} />
+
+      {/* Observation Detail Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Observation Details</DialogTitle>
+          </DialogHeader>
+          {selectedObservation && (
+            <ObservationPopup
+              observation={selectedObservation}
+              onRatingAdded={() => {
+                // Reload observations after rating is added
+                fetchObservations().then(setObservations);
+              }}
+              onReported={() => {
+                // Reload observations after report is submitted
+                fetchObservations().then(setObservations);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

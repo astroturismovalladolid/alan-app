@@ -37,7 +37,7 @@ export async function addObservation(data: ObservationInput) {
       longitude,
       description,
       rating,
-      ratings: [rating], // Store ratings as array for averaging
+      ratings: { [authorId!]: rating }, // Store ratings as map of userId -> rating
       createdAt: serverTimestamp(),
       authorId: authorId,
       reports: [], // Initialize empty reports array

@@ -8,7 +8,7 @@ export interface Observation {
   longitude: number;
   description: string;
   rating: number;
-  ratings: number[]; // Array of all ratings to calculate average
+  ratings: { [userId: string]: number }; // Map of userId to rating value
   authorId: string;
   createdAt: any;
   reports: Array<{
@@ -27,14 +27,33 @@ export async function fetchObservations(): Promise<Observation[]> {
     const observations: Observation[] = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data();
+
+      // Handle old array format and convert to object format
+      let ratingsMap: { [userId: string]: number } = {};
+      if (data.ratings) {
+        if (Array.isArray(data.ratings)) {
+          // Old format: convert first rating to author's rating
+          ratingsMap[data.authorId] = data.ratings[0] || data.rating;
+        } else {
+          ratingsMap = data.ratings;
+        }
+      } else {
+        // No ratings yet, use initial rating as author's rating
+        ratingsMap[data.authorId] = data.rating;
+      }
+
+      // Calculate average from ratings map
+      const ratingValues = Object.values(ratingsMap);
+      const averageRating = ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length;
+
       observations.push({
         id: doc.id,
         imageUrl: data.imageUrl,
         latitude: data.latitude,
         longitude: data.longitude,
         description: data.description,
-        rating: data.rating || data.ratings?.[0] || 1,
-        ratings: data.ratings || [data.rating],
+        rating: Math.round(averageRating),
+        ratings: ratingsMap,
         authorId: data.authorId,
         createdAt: data.createdAt,
         reports: data.reports || [],
@@ -48,7 +67,7 @@ export async function fetchObservations(): Promise<Observation[]> {
   }
 }
 
-export async function addRating(observationId: string, newRating: number): Promise<{ success: boolean; error?: string }> {
+export async function addRating(observationId: string, userId: string, newRating: number): Promise<{ success: boolean; error?: string }> {
   try {
     const observationRef = doc(db, 'observations', observationId);
     const observationDoc = await getDoc(observationRef);
@@ -58,12 +77,24 @@ export async function addRating(observationId: string, newRating: number): Promi
     }
 
     const data = observationDoc.data();
-    const currentRatings = data.ratings || [data.rating];
-    const updatedRatings = [...currentRatings, newRating];
-    const averageRating = updatedRatings.reduce((a, b) => a + b, 0) / updatedRatings.length;
+    let ratingsMap: { [userId: string]: number } = {};
+
+    // Handle old array format
+    if (Array.isArray(data.ratings)) {
+      ratingsMap[data.authorId] = data.ratings[0] || data.rating;
+    } else {
+      ratingsMap = data.ratings || {};
+    }
+
+    // Update or add user's rating (replaces previous rating if exists)
+    ratingsMap[userId] = newRating;
+
+    // Calculate new average
+    const ratingValues = Object.values(ratingsMap);
+    const averageRating = ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length;
 
     await updateDoc(observationRef, {
-      ratings: updatedRatings,
+      ratings: ratingsMap,
       rating: Math.round(averageRating), // Keep as integer for color coding
     });
 
