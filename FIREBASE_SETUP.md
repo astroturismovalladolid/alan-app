@@ -25,6 +25,14 @@ service firebase.storage {
       // Allow anyone to read images
       allow read: if true;
     }
+
+    // User avatars
+    match /avatars/{userId} {
+      // Users can only write their own avatar
+      allow write: if request.auth != null && request.auth.uid == userId;
+      // Anyone can read avatars
+      allow read: if true;
+    }
   }
 }
 ```
@@ -96,8 +104,9 @@ Una vez completados estos pasos:
 
 Las reglas configuradas:
 
-- ✅ **Storage**: Solo usuarios autenticados pueden subir, todos pueden leer
+- ✅ **Storage observations**: Solo usuarios autenticados pueden subir observaciones, todos pueden leer
+- ✅ **Storage avatars**: Usuarios solo pueden subir su propio avatar, todos pueden leer
 - ✅ **Firestore users**: Usuarios solo pueden leer/escribir sus propios datos
-- ✅ **Firestore observations**: Usuarios autenticados pueden crear, todos pueden leer, solo el autor puede modificar/eliminar
+- ✅ **Firestore observations**: Usuarios autenticados pueden crear, todos pueden leer, autores pueden eliminar, autores y otros pueden actualizar ratings/reports
 
 Si necesitas cambiar estas reglas más adelante, puedes hacerlo desde la consola de Firebase en cualquier momento.
