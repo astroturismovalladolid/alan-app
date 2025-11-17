@@ -200,7 +200,7 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
   };
 
   return (
-    <div className="w-full max-w-sm">
+    <div className="w-full">
       {/* Image */}
       <div className="relative w-full h-64 sm:h-80 bg-muted rounded-t-lg overflow-hidden flex items-center justify-center">
         <img
@@ -286,8 +286,9 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
 
         {/* Author */}
         {authorName && (
-          <div className="text-xs text-muted-foreground">
-            {t('by')} {authorName}
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <span className="text-muted-foreground">{t('by')}</span>
+            <span>{authorName}</span>
           </div>
         )}
 
@@ -325,8 +326,8 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
           </div>
         )}
 
-        {/* Actions (only for non-authors) */}
-        {!isAuthor && user && (
+        {/* Rating actions (for everyone including author) */}
+        {user && !showDeleteConfirm && (
           <div className="space-y-2 pt-2 border-t">
             {userHasRated && !showRatingForm && !showReportForm && (
               <div className="text-xs text-muted-foreground">
@@ -347,15 +348,17 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
                   <Star className="h-4 w-4 mr-1" />
                   {userHasRated ? t('changeRating') : t('rate')}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => setShowReportForm(true)}
-                >
-                  <Flag className="h-4 w-4 mr-1" />
-                  {t('reportBtn')}
-                </Button>
+                {!isAuthor && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setShowReportForm(true)}
+                  >
+                    <Flag className="h-4 w-4 mr-1" />
+                    {t('reportBtn')}
+                  </Button>
+                )}
               </div>
             )}
 
@@ -404,8 +407,8 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
               </div>
             )}
 
-            {/* Report Form */}
-            {showReportForm && (
+            {/* Report Form (only for non-authors) */}
+            {!isAuthor && showReportForm && (
               <div className="space-y-3">
                 <div className="text-sm font-medium">{t('reportThisObservation')}</div>
                 <Textarea
@@ -443,8 +446,8 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
           </div>
         )}
 
-        {/* Author actions */}
-        {isAuthor && (
+        {/* Author delete action */}
+        {isAuthor && !showEditDescription && !showRatingForm && (
           <div className="space-y-2 pt-2 border-t">
             {!showDeleteConfirm ? (
               <>

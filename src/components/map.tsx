@@ -60,6 +60,7 @@ function MapComponent() {
   const { t } = useLanguage();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const [isClient, setIsClient] = useState(false);
   const [observations, setObservations] = useState<Observation[]>([]);
@@ -70,6 +71,31 @@ function MapComponent() {
     setIsClient(true);
   }, []);
 
+  // Get tile layer based on theme
+  const getTileLayer = (theme: string) => {
+    if (theme === 'light') {
+      // Light mode: standard OpenStreetMap
+      return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      });
+    } else if (theme === 'night') {
+      // Night mode: Dark red-tinted tiles
+      return L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20,
+        className: 'map-tiles-night',
+      });
+    } else {
+      // Dark mode: Dark tiles
+      return L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20,
+      });
+    }
+  };
+
   // Initialize map
   useEffect(() => {
     if (isClient && mapContainerRef.current && !mapRef.current) {
@@ -78,9 +104,11 @@ function MapComponent() {
       }).setView([51.505, -0.09], 13); // Default view
       mapRef.current = map;
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
+      // Get initial theme and add appropriate tile layer
+      const initialTheme = localStorage.getItem('theme') || 'dark';
+      const tileLayer = getTileLayer(initialTheme);
+      tileLayer.addTo(map);
+      tileLayerRef.current = tileLayer;
 
       // Get user's current location
       if (navigator.geolocation) {
@@ -95,6 +123,34 @@ function MapComponent() {
         );
       }
     }
+  }, [isClient]);
+
+  // Watch for theme changes and update map tiles
+  useEffect(() => {
+    if (!mapRef.current || !isClient) return;
+
+    const handleThemeChange = () => {
+      const currentTheme = document.documentElement.className || localStorage.getItem('theme') || 'dark';
+
+      if (tileLayerRef.current) {
+        mapRef.current?.removeLayer(tileLayerRef.current);
+      }
+
+      const newTileLayer = getTileLayer(currentTheme);
+      newTileLayer.addTo(mapRef.current!);
+      tileLayerRef.current = newTileLayer;
+    };
+
+    // Create a MutationObserver to watch for class changes on documentElement
+    const observer = new MutationObserver(handleThemeChange);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => {
+      observer.disconnect();
+    };
   }, [isClient]);
 
   // Load observations
