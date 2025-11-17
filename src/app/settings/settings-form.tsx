@@ -82,7 +82,7 @@ export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t('language')}</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder={t('selectLanguage')} />
