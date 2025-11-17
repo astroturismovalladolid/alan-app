@@ -27,13 +27,15 @@ import { SettingsForm } from './settings/settings-form';
 import { useLanguage } from '@/context/language-context';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@/context/auth-context';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function Home() {
   const [isUploadModalOpen, setUploadModalOpen] = useState(false);
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
   const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ displayName?: string; photoURL?: string; bio?: string } | null>(null);
   const { t } = useLanguage();
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -44,15 +46,71 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
-  const Map = useMemo(() => dynamic(() => import('@/components/map'), { 
-    ssr: false 
+  // Fetch user profile data from Firestore
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user) {
+        try {
+          const userRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(userRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setUserProfile({
+              displayName: data.displayName || user.displayName || undefined,
+              photoURL: data.photoURL || user.photoURL || undefined,
+              bio: data.bio || undefined,
+            });
+          } else {
+            // Use Firebase Auth data if Firestore doc doesn't exist
+            setUserProfile({
+              displayName: user.displayName || undefined,
+              photoURL: user.photoURL || undefined,
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+          // Fallback to Firebase Auth data
+          setUserProfile({
+            displayName: user.displayName || undefined,
+            photoURL: user.photoURL || undefined,
+          });
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
+
+  const Map = useMemo(() => dynamic(() => import('@/components/map'), {
+    ssr: false
   }), []);
 
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/login');
   };
-  
+
+  const handleProfileUpdate = async () => {
+    setProfileModalOpen(false);
+    // Refresh user profile data from Firestore
+    if (user) {
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setUserProfile({
+            displayName: data.displayName || user.displayName || undefined,
+            photoURL: data.photoURL || user.photoURL || undefined,
+            bio: data.bio || undefined,
+          });
+        }
+      } catch (error) {
+        console.error('Error refreshing user profile:', error);
+      }
+    }
+  };
+
   if (loading || !user) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-background">
@@ -72,11 +130,11 @@ export default function Home() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex h-auto items-center gap-3 rounded-full bg-card p-2 pr-4 text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:text-primary-foreground night:hover:bg-primary/90">
               <Avatar className="h-9 w-9">
-                <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
-                <AvatarFallback>{user.displayName?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                <AvatarImage src={userProfile?.photoURL || user.photoURL || undefined} alt={userProfile?.displayName || user.displayName || 'User'} />
+                <AvatarFallback>{(userProfile?.displayName || user.displayName)?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
               </Avatar>
               <div className="text-left">
-                <p className="text-sm font-medium">{user.displayName || t('username')}</p>
+                <p className="text-sm font-medium">{userProfile?.displayName || user.displayName || t('username')}</p>
                 <p className="text-xs text-muted-foreground">{t('newbie')}</p>
               </div>
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -122,7 +180,7 @@ export default function Home() {
               {t('manageYourAccount')}
             </DialogDescription>
           </DialogHeader>
-          <ProfileForm onUpdateSuccess={() => setProfileModalOpen(false)} />
+          <ProfileForm onUpdateSuccess={handleProfileUpdate} />
         </DialogContent>
       </Dialog>
 

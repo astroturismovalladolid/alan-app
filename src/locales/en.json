@@ -91,5 +91,6 @@
   "mustBeAuthorToDelete": "You must be the author to delete this observation",
   "observationDeleted": "Observation deleted successfully",
   "failedToDelete": "Failed to delete observation",
-  "error": "Error"
+  "error": "Error",
+  "failedToUpdateProfile": "Failed to update profile"
 }

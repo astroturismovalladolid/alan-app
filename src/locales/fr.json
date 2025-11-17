@@ -91,5 +91,6 @@
   "mustBeAuthorToDelete": "Vous devez être l'auteur pour supprimer cette observation",
   "observationDeleted": "Observation supprimée avec succès",
   "failedToDelete": "Échec de la suppression de l'observation",
-  "error": "Erreur"
+  "error": "Erreur",
+  "failedToUpdateProfile": "Échec de la mise à jour du profil"
 }
