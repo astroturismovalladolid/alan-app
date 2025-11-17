@@ -23,7 +23,11 @@ import { FirestorePermissionError } from '@/firebase/errors';
 import type { SecurityRuleContext } from '@/firebase/errors';
 
 const profileFormSchema = z.object({
-  username: z.string().min(2, 'Username must be at least 2 characters.'),
+  displayName: z.string().min(2, 'Display name must be at least 2 characters.'),
+  username: z.string()
+    .min(3, 'Username must be at least 3 characters.')
+    .max(20, 'Username cannot be more than 20 characters.')
+    .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores.'),
   bio: z.string().max(160, 'Bio cannot be more than 160 characters.').optional(),
   avatar: z.string().optional(),
 });
@@ -44,6 +48,7 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
+      displayName: '',
       username: '',
       bio: '',
       avatar: '',
@@ -64,7 +69,8 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
             if (docSnap && docSnap.exists()) {
                 const userData = docSnap.data();
                 form.reset({
-                    username: userData.displayName || '',
+                    displayName: userData.displayName || '',
+                    username: userData.username || '',
                     bio: userData.bio || '',
                     avatar: userData.photoURL || '',
                 });
@@ -125,7 +131,8 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
 
       const userRef = doc(db, 'users', user.uid);
       const updatedData = {
-          displayName: data.username,
+          displayName: data.displayName,
+          username: data.username,
           bio: data.bio,
           photoURL: avatarUrl,
       };
@@ -179,6 +186,21 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
 
         <FormField
           control={form.control}
+          name="displayName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('displayName')}</FormLabel>
+              <FormControl>
+                <Input placeholder={t('yourDisplayName')} {...field} />
+              </FormControl>
+              <p className="text-xs text-muted-foreground">{t('displayNameHelp')}</p>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="username"
           render={({ field }) => (
             <FormItem>
@@ -186,6 +208,7 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
               <FormControl>
                 <Input placeholder={t('yourUsername')} {...field} />
               </FormControl>
+              <p className="text-xs text-muted-foreground">{t('usernameHelp')}</p>
               <FormMessage />
             </FormItem>
           )}
