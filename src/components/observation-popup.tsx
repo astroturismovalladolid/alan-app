@@ -211,12 +211,10 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
         <p className="text-sm text-foreground">{observation.description}</p>
 
         {/* Author */}
-        {authorName && (
-          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-            <span className="text-muted-foreground">{t('by')}</span>
-            <span>{authorName}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <span className="text-muted-foreground">{t('by')}</span>
+          <span>{authorName || observation.authorName || 'Anonymous'}</span>
+        </div>
 
         {/* Creation Date */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
