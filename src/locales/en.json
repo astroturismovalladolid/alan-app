@@ -92,5 +92,10 @@
   "observationDeleted": "Observation deleted successfully",
   "failedToDelete": "Failed to delete observation",
   "error": "Error",
-  "failedToUpdateProfile": "Failed to update profile"
+  "failedToUpdateProfile": "Failed to update profile",
+  "observationDetails": "Observation Details",
+  "editDescription": "Edit Description",
+  "updateDescription": "Update Description",
+  "descriptionUpdated": "Description updated successfully",
+  "failedToUpdateDescription": "Failed to update description"
 }

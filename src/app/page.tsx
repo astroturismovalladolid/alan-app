@@ -173,7 +173,7 @@ export default function Home() {
       </Dialog>
 
       <Dialog open={isProfileModalOpen} onOpenChange={setProfileModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t('editProfile')}</DialogTitle>
             <DialogDescription>
@@ -185,7 +185,7 @@ export default function Home() {
       </Dialog>
 
       <Dialog open={isSettingsModalOpen} onOpenChange={setSettingsModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t('settings')}</DialogTitle>
             <DialogDescription>

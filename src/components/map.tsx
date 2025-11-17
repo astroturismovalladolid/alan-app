@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { fetchObservations, type Observation } from '@/lib/observations-fetch';
 import { ObservationPopup } from './observation-popup';
+import { useLanguage } from '@/context/language-context';
 import {
   Dialog,
   DialogContent,
@@ -56,6 +57,7 @@ function getIconForRating(rating: number): L.Icon {
 }
 
 function MapComponent() {
+  const { t } = useLanguage();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
@@ -146,9 +148,9 @@ function MapComponent() {
 
       {/* Observation Detail Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px] max-h-[95vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Observation Details</DialogTitle>
+            <DialogTitle>{t('observationDetails')}</DialogTitle>
           </DialogHeader>
           {selectedObservation && (
             <ObservationPopup

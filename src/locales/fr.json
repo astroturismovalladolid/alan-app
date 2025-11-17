@@ -92,5 +92,10 @@
   "observationDeleted": "Observation supprimée avec succès",
   "failedToDelete": "Échec de la suppression de l'observation",
   "error": "Erreur",
-  "failedToUpdateProfile": "Échec de la mise à jour du profil"
+  "failedToUpdateProfile": "Échec de la mise à jour du profil",
+  "observationDetails": "Détails de l'Observation",
+  "editDescription": "Modifier la Description",
+  "updateDescription": "Mettre à jour la Description",
+  "descriptionUpdated": "Description mise à jour avec succès",
+  "failedToUpdateDescription": "Échec de la mise à jour de la description"
 }

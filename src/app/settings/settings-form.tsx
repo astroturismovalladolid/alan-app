@@ -5,14 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { cn } from '@/lib/utils';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Save } from 'lucide-react';
@@ -82,18 +76,46 @@ export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t('language')}</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('selectLanguage')} />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="es">Español</SelectItem>
-                  <SelectItem value="fr">Français</SelectItem>
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    className={cn(
+                      "flex-1 h-20 text-4xl transition-all",
+                      field.value === 'en' && "ring-2 ring-primary bg-accent"
+                    )}
+                    onClick={() => field.onChange('en')}
+                  >
+                    🇺🇸
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    className={cn(
+                      "flex-1 h-20 text-4xl transition-all",
+                      field.value === 'es' && "ring-2 ring-primary bg-accent"
+                    )}
+                    onClick={() => field.onChange('es')}
+                  >
+                    🇪🇸
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    className={cn(
+                      "flex-1 h-20 text-4xl transition-all",
+                      field.value === 'fr' && "ring-2 ring-primary bg-accent"
+                    )}
+                    onClick={() => field.onChange('fr')}
+                  >
+                    🇫🇷
+                  </Button>
+                </div>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

@@ -92,5 +92,10 @@
   "observationDeleted": "Observación eliminada correctamente",
   "failedToDelete": "Error al eliminar observación",
   "error": "Error",
-  "failedToUpdateProfile": "Error al actualizar el perfil"
+  "failedToUpdateProfile": "Error al actualizar el perfil",
+  "observationDetails": "Detalles de la Observación",
+  "editDescription": "Editar Descripción",
+  "updateDescription": "Actualizar Descripción",
+  "descriptionUpdated": "Descripción actualizada correctamente",
+  "failedToUpdateDescription": "Error al actualizar descripción"
 }

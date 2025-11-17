@@ -152,3 +152,18 @@ export async function deleteObservation(observationId: string, imageUrl: string)
     return { success: false, error: error.message };
   }
 }
+
+export async function updateDescription(observationId: string, newDescription: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const observationRef = doc(db, 'observations', observationId);
+
+    await updateDoc(observationRef, {
+      description: newDescription,
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error updating description:', error);
+    return { success: false, error: error.message };
+  }
+}
