@@ -101,7 +101,6 @@ export default function LoginPage() {
                             Acepto los{' '}
                             <Link
                                 href="/terms"
-                                target="_blank"
                                 className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
                             >
                                 términos y condiciones de uso

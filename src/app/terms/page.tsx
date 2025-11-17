@@ -3,17 +3,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowUp } from 'lucide-react';
 
 export default function TermsPage() {
     const router = useRouter();
+
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     return (
         <main className="min-h-screen bg-background p-4 md:p-8">
             <div className="mx-auto max-w-4xl">
                 <Button
                     variant="ghost"
-                    onClick={() => router.back()}
+                    onClick={() => router.push('/login')}
                     className="mb-4"
                 >
                     <ArrowLeft className="mr-2 h-4 w-4" />
@@ -186,6 +190,25 @@ export default function TermsPage() {
                             <p className="text-sm text-muted-foreground italic">
                                 Al hacer clic en "Acepto los términos y condiciones" en la página de inicio de sesión, usted reconoce que ha leído, entendido y acepta estar sujeto a estos Términos y Condiciones de Uso.
                             </p>
+                        </div>
+
+                        <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+                            <Button
+                                variant="outline"
+                                onClick={() => router.push('/login')}
+                                className="w-full sm:w-auto"
+                            >
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Volver al inicio de sesión
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={scrollToTop}
+                                className="w-full sm:w-auto"
+                            >
+                                <ArrowUp className="mr-2 h-4 w-4" />
+                                Ir al inicio de la página
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>
