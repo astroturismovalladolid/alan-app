@@ -10,8 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/context/auth-context';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
-import { Aperture } from 'lucide-react';
-import { Loader2 } from 'lucide-react';
+import { Lightbulb, Loader2 } from 'lucide-react';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
@@ -75,7 +74,7 @@ export default function LoginPage() {
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
                     <div className="mx-auto mb-4 flex items-center gap-2">
-                        <Aperture className="h-8 w-8 text-primary" />
+                        <Lightbulb className="h-8 w-8 text-primary" />
                         <h1 className="font-headline text-3xl font-bold">ALAN</h1>
                     </div>
                     <CardTitle className="text-2xl">Welcome Back</CardTitle>
