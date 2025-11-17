@@ -120,11 +120,11 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
   return (
     <div className="w-full max-w-sm">
       {/* Image */}
-      <div className="relative w-full h-40 bg-muted rounded-t-lg overflow-hidden">
+      <div className="relative w-full h-40 bg-muted rounded-t-lg overflow-hidden flex items-center justify-center">
         <img
           src={observation.imageUrl}
           alt="Observation"
-          className="w-full h-full object-cover"
+          className="max-w-full max-h-full object-contain"
         />
       </div>
 

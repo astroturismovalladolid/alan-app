@@ -156,11 +156,25 @@ function MapComponent() {
               authorName={selectedObservation.authorName}
               onRatingAdded={() => {
                 // Reload observations after rating is added
-                fetchObservations().then(setObservations);
+                fetchObservations().then((newObservations) => {
+                  setObservations(newObservations);
+                  // Update the selected observation with fresh data
+                  const updated = newObservations.find(obs => obs.id === selectedObservation.id);
+                  if (updated) {
+                    setSelectedObservation(updated);
+                  }
+                });
               }}
               onReported={() => {
                 // Reload observations after report is submitted
-                fetchObservations().then(setObservations);
+                fetchObservations().then((newObservations) => {
+                  setObservations(newObservations);
+                  // Update the selected observation with fresh data
+                  const updated = newObservations.find(obs => obs.id === selectedObservation.id);
+                  if (updated) {
+                    setSelectedObservation(updated);
+                  }
+                });
               }}
               onDeleted={() => {
                 // Close modal and reload observations after deletion
