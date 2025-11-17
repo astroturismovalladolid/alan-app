@@ -28,5 +28,9 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
+// Force account selection on every login
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
 
 export { app, db, storage, auth, googleProvider };

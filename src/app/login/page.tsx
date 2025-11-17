@@ -3,8 +3,10 @@
 import { useEffect } from 'react';
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/context/auth-context';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
@@ -26,6 +28,7 @@ export default function LoginPage() {
     const router = useRouter();
     const [error, setError] = React.useState<string | null>(null);
     const [signingIn, setSigningIn] = React.useState(false);
+    const [termsAccepted, setTermsAccepted] = React.useState(false);
 
     useEffect(() => {
         if (!loading && user) {
@@ -84,21 +87,44 @@ export default function LoginPage() {
                             {error}
                         </div>
                     )}
+
+                    <div className="flex items-start space-x-3">
+                        <Checkbox
+                            id="terms"
+                            checked={termsAccepted}
+                            onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+                        />
+                        <label
+                            htmlFor="terms"
+                            className="text-sm leading-tight text-muted-foreground cursor-pointer"
+                        >
+                            Acepto los{' '}
+                            <Link
+                                href="/terms"
+                                target="_blank"
+                                className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+                            >
+                                términos y condiciones de uso
+                            </Link>
+                            {' '}de esta app
+                        </label>
+                    </div>
+
                     <Button
                         onClick={handleGoogleSignIn}
                         className="w-full"
                         size="lg"
-                        disabled={signingIn}
+                        disabled={signingIn || !termsAccepted}
                     >
                         {signingIn ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Signing in...
+                                Iniciando sesión...
                             </>
                         ) : (
                             <>
                                 <GoogleIcon className="mr-2" />
-                                Sign in with Google
+                                Iniciar sesión con Google
                             </>
                         )}
                     </Button>
