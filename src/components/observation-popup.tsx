@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Star, MapPin, Flag, Loader2, Trash2 } from 'lucide-react';
+import { Star, MapPin, Flag, Loader2, Trash2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/context/auth-context';
@@ -14,6 +14,45 @@ interface ObservationPopupProps {
   onReported: () => void;
   onDeleted: () => void;
   authorName?: string;
+}
+
+// Helper function to format timestamp
+function formatTimestamp(timestamp: any): string {
+  if (!timestamp) return 'Unknown date';
+
+  let date: Date;
+
+  // Handle Firestore Timestamp
+  if (timestamp?.toDate) {
+    date = timestamp.toDate();
+  } else if (timestamp?.seconds) {
+    date = new Date(timestamp.seconds * 1000);
+  } else if (timestamp instanceof Date) {
+    date = timestamp;
+  } else {
+    return 'Unknown date';
+  }
+
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  // Relative time for recent observations
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+
+  // Absolute date for older observations
+  return date.toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 }
 
 export function ObservationPopup({ observation, onRatingAdded, onReported, onDeleted, authorName }: ObservationPopupProps) {
@@ -159,6 +198,12 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
             By {authorName}
           </div>
         )}
+
+        {/* Creation Date */}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Clock className="h-4 w-4" />
+          <span>{formatTimestamp(observation.createdAt)}</span>
+        </div>
 
         {/* Location */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
