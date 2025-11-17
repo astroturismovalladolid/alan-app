@@ -130,7 +130,7 @@ export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                   className="flex flex-col space-y-1"
                 >
                   <FormItem className="flex items-center space-x-3 space-y-0">

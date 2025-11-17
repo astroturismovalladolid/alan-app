@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Star, MapPin, Flag, Loader2, Trash2, Clock, Edit } from 'lucide-react';
+import { Star, MapPin, Flag, Loader2, Trash2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/context/auth-context';
 import { useLanguage } from '@/context/language-context';
-import { addRating, reportObservation, deleteObservation, updateDescription, type Observation } from '@/lib/observations-fetch';
+import { addRating, reportObservation, deleteObservation, type Observation } from '@/lib/observations-fetch';
 import { cn } from '@/lib/utils';
 
 interface ObservationPopupProps {
@@ -23,11 +23,9 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
   const [showRatingForm, setShowRatingForm] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showEditDescription, setShowEditDescription] = useState(false);
   const [newRating, setNewRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [reportReason, setReportReason] = useState('');
-  const [editedDescription, setEditedDescription] = useState(observation.description);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -176,29 +174,6 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
     setIsSubmitting(false);
   };
 
-  const handleDescriptionUpdate = async () => {
-    if (!editedDescription.trim()) {
-      setError(t('describeObservation'));
-      return;
-    }
-
-    setIsSubmitting(true);
-    setError(null);
-    setSuccess(null);
-
-    const result = await updateDescription(observation.id, editedDescription);
-
-    if (result.success) {
-      setSuccess(t('descriptionUpdated'));
-      setShowEditDescription(false);
-      onRatingAdded(); // Refresh observation data
-    } else {
-      setError(result.error || t('failedToUpdateDescription'));
-    }
-
-    setIsSubmitting(false);
-  };
-
   return (
     <div className="w-full">
       {/* Image */}
@@ -233,56 +208,7 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
         </div>
 
         {/* Description */}
-        {!showEditDescription ? (
-          <div>
-            <p className="text-sm text-foreground">{observation.description}</p>
-            {isAuthor && !showDeleteConfirm && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="mt-1 h-auto p-1 text-xs"
-                onClick={() => {
-                  setShowEditDescription(true);
-                  setEditedDescription(observation.description);
-                }}
-              >
-                <Edit className="h-3 w-3 mr-1" />
-                {t('editDescription')}
-              </Button>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <Textarea
-              value={editedDescription}
-              onChange={(e) => setEditedDescription(e.target.value)}
-              rows={3}
-              className="text-sm"
-            />
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setShowEditDescription(false);
-                  setEditedDescription(observation.description);
-                  setError(null);
-                }}
-              >
-                {t('cancel')}
-              </Button>
-              <Button
-                size="sm"
-                className="flex-1"
-                onClick={handleDescriptionUpdate}
-                disabled={isSubmitting}
-              >
-                {isSubmitting && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
-                {t('updateDescription')}
-              </Button>
-            </div>
-          </div>
-        )}
+        <p className="text-sm text-foreground">{observation.description}</p>
 
         {/* Author */}
         {authorName && (
@@ -326,8 +252,8 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
           </div>
         )}
 
-        {/* Rating actions (for everyone including author) */}
-        {user && !showDeleteConfirm && (
+        {/* Rating actions (only for non-authors) */}
+        {!isAuthor && user && (
           <div className="space-y-2 pt-2 border-t">
             {userHasRated && !showRatingForm && !showReportForm && (
               <div className="text-xs text-muted-foreground">
@@ -348,17 +274,15 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
                   <Star className="h-4 w-4 mr-1" />
                   {userHasRated ? t('changeRating') : t('rate')}
                 </Button>
-                {!isAuthor && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => setShowReportForm(true)}
-                  >
-                    <Flag className="h-4 w-4 mr-1" />
-                    {t('reportBtn')}
-                  </Button>
-                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowReportForm(true)}
+                >
+                  <Flag className="h-4 w-4 mr-1" />
+                  {t('reportBtn')}
+                </Button>
               </div>
             )}
 
@@ -407,8 +331,8 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
               </div>
             )}
 
-            {/* Report Form (only for non-authors) */}
-            {!isAuthor && showReportForm && (
+            {/* Report Form */}
+            {showReportForm && (
               <div className="space-y-3">
                 <div className="text-sm font-medium">{t('reportThisObservation')}</div>
                 <Textarea
@@ -447,7 +371,7 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
         )}
 
         {/* Author delete action */}
-        {isAuthor && !showEditDescription && !showRatingForm && (
+        {isAuthor && (
           <div className="space-y-2 pt-2 border-t">
             {!showDeleteConfirm ? (
               <>
