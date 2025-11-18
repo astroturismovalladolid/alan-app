@@ -17,13 +17,18 @@ import {
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Camera, Star, LocateFixed, RefreshCw, Loader2 } from 'lucide-react';
+import { Camera, Star, LocateFixed, RefreshCw, Loader2, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/context/language-context';
 import { addObservation } from '@/lib/observations-service';
 import { useAuth } from '@/context/auth-context';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import type { LocationPrecision } from '@/lib/types';
 
 const formSchema = z.object({
   latitude: z.number(),
@@ -34,6 +39,11 @@ const formSchema = z.object({
   rating: z.number().min(1, { message: 'Please select a rating.' }).max(5),
   image: z.string().refine((data) => data.startsWith('data:image/'), {
     message: 'A captured image is required.',
+  }),
+  locationPrecision: z.enum(['exact', 'approximate', 'anonymous']),
+  isAnonymous: z.boolean(),
+  acceptLocationSharing: z.boolean().refine((val) => val === true, {
+    message: 'You must accept sharing your location to continue.',
   }),
 });
 
@@ -85,6 +95,9 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     defaultValues: {
       description: '',
       rating: 0,
+      locationPrecision: 'exact',
+      isAnonymous: false,
+      acceptLocationSharing: false,
     },
   });
 
@@ -171,7 +184,8 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!user) {
+    // Check if user is logged in (required for non-anonymous observations)
+    if (!user && !values.isAnonymous) {
         setUploadError(t('logInToSubmit'));
         return;
     }
@@ -180,10 +194,17 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     setUploadError(null); // Clear previous errors
     try {
       const result = await addObservation({
-        ...values,
-        authorId: user.uid,
-        authorName: user.displayName || 'Anonymous'
+        latitude: values.latitude,
+        longitude: values.longitude,
+        description: values.description,
+        rating: values.rating,
+        image: values.image,
+        locationPrecision: values.locationPrecision,
+        isAnonymous: values.isAnonymous,
+        authorId: values.isAnonymous ? undefined : user?.uid,
+        authorName: values.isAnonymous ? 'Anonymous' : (user?.displayName || 'Anonymous'),
       });
+
       if (result.success) {
         toast({
           title: t('uploadSuccessful'),
@@ -274,6 +295,93 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
               <FormField control={form.control} name="latitude" render={() => <FormMessage />} />
             </FormItem>
 
+            {/* Privacy Warning Alert */}
+            <Alert variant="destructive" className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
+              <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-500" />
+              <AlertDescription className="text-amber-800 dark:text-amber-300">
+                <strong>{t('locationPrivacyWarning')}</strong>
+                <br />
+                <span className="text-sm">{t('locationPrivacyDescription')}</span>
+              </AlertDescription>
+            </Alert>
+
+            {/* Location Precision Selection */}
+            <FormField
+              control={form.control}
+              name="locationPrecision"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>{t('locationPrivacy')}</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-col space-y-2"
+                    >
+                      <div className="flex items-start space-x-3 space-y-0 rounded-md border p-4 hover:bg-accent/50 transition-colors">
+                        <RadioGroupItem value="exact" id="exact" />
+                        <div className="flex-1">
+                          <Label htmlFor="exact" className="font-medium cursor-pointer">
+                            {t('locationPrecisionExact')}
+                          </Label>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {t('locationPrecisionExactDesc')}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3 space-y-0 rounded-md border p-4 hover:bg-accent/50 transition-colors">
+                        <RadioGroupItem value="approximate" id="approximate" />
+                        <div className="flex-1">
+                          <Label htmlFor="approximate" className="font-medium cursor-pointer">
+                            {t('locationPrecisionApproximate')}
+                          </Label>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {t('locationPrecisionApproximateDesc')}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3 space-y-0 rounded-md border p-4 hover:bg-accent/50 transition-colors">
+                        <RadioGroupItem value="anonymous" id="anonymous" />
+                        <div className="flex-1">
+                          <Label htmlFor="anonymous" className="font-medium cursor-pointer">
+                            {t('locationPrecisionAnonymous')}
+                          </Label>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {t('locationPrecisionAnonymousDesc')}
+                          </p>
+                        </div>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Anonymous Observation Checkbox */}
+            <FormField
+              control={form.control}
+              name="isAnonymous"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="cursor-pointer">
+                      {t('makeObservationAnonymous')}
+                    </FormLabel>
+                    <FormDescription>
+                      {t('anonymousObservationDesc')}
+                    </FormDescription>
+                  </div>
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="description"
@@ -306,6 +414,31 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
               )}
             />
 
+            {/* Accept Location Sharing Checkbox - REQUIRED */}
+            <FormField
+              control={form.control}
+              name="acceptLocationSharing"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border-2 border-primary/50 bg-primary/5 p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="cursor-pointer font-semibold">
+                      {t('iAcceptSharingLocation')}
+                    </FormLabel>
+                    <FormDescription className="text-xs">
+                      {t('locationSharedPublicly')}
+                    </FormDescription>
+                    <FormMessage />
+                  </div>
+                </FormItem>
+              )}
+            />
+
             {uploadError && (
               <div className="rounded-md bg-destructive/15 p-4 border border-destructive/30">
                 <div className="flex items-start gap-3">
@@ -322,7 +455,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
               </div>
             )}
 
-            <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+            <Button type="submit" size="lg" className="w-full" disabled={isSubmitting || !form.watch('acceptLocationSharing')}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isSubmitting ? t('submitting') : t('submitObservation')}
             </Button>
