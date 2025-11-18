@@ -22,15 +22,25 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(app);
-const storage = getStorage(app);
-const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
-// Force account selection on every login
-googleProvider.setCustomParameters({
-  prompt: 'select_account'
-});
+// Check if we have valid Firebase config (not placeholder values from .env.local)
+const hasValidConfig = firebaseConfig.apiKey &&
+                        firebaseConfig.apiKey !== 'your-api-key-here' &&
+                        firebaseConfig.projectId &&
+                        firebaseConfig.projectId !== 'your-project-id';
+
+// Initialize Firebase only if we have valid config (avoid build errors with placeholder credentials)
+// During build time with invalid credentials, Firebase will not be initialized
+const app = hasValidConfig && !getApps().length ? initializeApp(firebaseConfig) : (hasValidConfig ? getApp() : null);
+const db = app ? getFirestore(app) : null as any;
+const storage = app ? getStorage(app) : null as any;
+const auth = app ? getAuth(app) : null as any;
+const googleProvider = app ? new GoogleAuthProvider() : null as any;
+
+// Force account selection on every login (only if googleProvider exists)
+if (googleProvider) {
+  googleProvider.setCustomParameters({
+    prompt: 'select_account'
+  });
+}
 
 export { app, db, storage, auth, googleProvider };
