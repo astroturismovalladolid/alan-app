@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,7 @@ import { useAuth } from '@/context/auth-context';
 import { auth, db } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
+import type { MapRef } from '@/components/map';
 
 export default function Home() {
   const [isUploadModalOpen, setUploadModalOpen] = useState(false);
@@ -43,6 +44,7 @@ export default function Home() {
   const { t } = useLanguage();
   const { user, loading } = useAuth();
   const router = useRouter();
+  const mapRef = useRef<MapRef>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -86,7 +88,7 @@ export default function Home() {
   }, [user]);
 
   const Map = useMemo(() => dynamic(() => import('@/components/map'), {
-    ssr: false
+    ssr: false,
   }), []);
 
   const handleLogout = async () => {
@@ -115,6 +117,14 @@ export default function Home() {
     }
   };
 
+  const handleUploadSuccess = async () => {
+    setUploadModalOpen(false);
+    // Reload observations on the map
+    if (mapRef.current) {
+      await mapRef.current.reloadObservations();
+    }
+  };
+
   if (loading || !user) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-background">
@@ -125,7 +135,7 @@ export default function Home() {
 
   return (
     <main className="relative h-screen w-screen">
-      <Map />
+      <Map ref={mapRef} />
       <div className="absolute top-8 left-8 z-[1000]">
         <h1 className="text-5xl font-bold tracking-wider text-foreground dark:!text-white night:text-primary [text-shadow:2px_2px_4px_rgba(0,0,0,0.3)] dark:[text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] night:[text-shadow:2px_2px_4px_rgba(0,0,0,0.5)]">ALAN</h1>
       </div>
@@ -181,7 +191,7 @@ export default function Home() {
               {t('helpMapLightPollution')}
             </DialogDescription>
           </DialogHeader>
-          <UploadForm onUploadSuccess={() => setUploadModalOpen(false)} />
+          <UploadForm onUploadSuccess={handleUploadSuccess} />
         </DialogContent>
       </Dialog>
 
