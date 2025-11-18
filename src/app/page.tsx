@@ -3,6 +3,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -13,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Camera, ChevronDown, Loader2, CircleHelp } from 'lucide-react';
+import { Camera, ChevronDown, Loader2, HelpCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -158,7 +159,7 @@ export default function Home() {
           className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
           onClick={() => setInfoModalOpen(true)}
         >
-          <CircleHelp className="h-10 w-10" />
+          <HelpCircle className="h-6 w-6" strokeWidth={2.5} />
         </Button>
       </div>
       <div className="absolute bottom-8 right-8 z-[1000]">
@@ -167,7 +168,7 @@ export default function Home() {
           className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
           onClick={() => setUploadModalOpen(true)}
         >
-          <Camera className="h-10 w-10" />
+          <Camera className="h-6 w-6" strokeWidth={2.5} />
         </Button>
       </div>
 
@@ -288,16 +289,49 @@ export default function Home() {
                 <p className="text-base text-muted-foreground">{t('creditsAboutText')}</p>
 
                 <h4 className="font-semibold mt-4 text-lg">{t('creditsDevelopmentTitle')}</h4>
-                <p className="text-base text-muted-foreground">{t('creditsDevelopmentText')}</p>
+                <p className="text-base text-muted-foreground">
+                  {t('creditsDevelopmentText').split('Alejandro Catalá Espí')[0]}
+                  <a
+                    href="https://alejandrocatalaespi.es"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-primary hover:underline"
+                  >
+                    Alejandro Catalá Espí
+                  </a>
+                  {t('creditsDevelopmentText').split('Alejandro Catalá Espí')[1]}
+                </p>
 
                 <h4 className="font-semibold mt-4 text-lg">{t('creditsAcknowledgmentsTitle')}</h4>
-                <p className="text-base text-muted-foreground whitespace-pre-line">{t('creditsAcknowledgmentsText')}</p>
+                <div className="text-base text-muted-foreground">
+                  <p>• <a href="https://darksky.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">International Dark-Sky Association (IDA)</a></p>
+                  <p>• <a href="https://syrma.net" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Sociedad Astronómica Syrma</a></p>
+                  <p>• {t('creditsAcknowledgmentsText').split('\n')[2]}</p>
+                  <p>• {t('creditsAcknowledgmentsText').split('\n')[3]}</p>
+                  <p>• {t('creditsAcknowledgmentsText').split('\n')[4]}</p>
+                </div>
 
                 <h4 className="font-semibold mt-4 text-lg">{t('creditsResourcesTitle')}</h4>
-                <p className="text-base text-muted-foreground whitespace-pre-line">{t('creditsResourcesText')}</p>
+                <div className="text-base text-muted-foreground">
+                  <p>• <a href="https://darksky.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">DarkSky International: darksky.org</a></p>
+                  <p>• <a href="https://globeatnight.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Globe at Night: globeatnight.org</a></p>
+                  <p>• <a href="https://lightpollutionmap.info" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Light Pollution Map: lightpollutionmap.info</a></p>
+                </div>
 
                 <h4 className="font-semibold mt-4 text-lg">{t('creditsLicenseTitle')}</h4>
                 <p className="text-base text-muted-foreground">{t('creditsLicenseText')}</p>
+
+                <h4 className="font-semibold mt-4 text-lg">{t('creditsSupportTitle')}</h4>
+                <p className="text-base text-muted-foreground mb-3">{t('creditsSupportText')}</p>
+                <a
+                  href="https://buymeacoffee.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button className="w-full sm:w-auto" variant="default">
+                    {t('supportButton')}
+                  </Button>
+                </a>
               </div>
             </TabsContent>
           </Tabs>

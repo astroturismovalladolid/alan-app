@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/context/auth-context';
+import { useLanguage } from '@/context/language-context';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
 import { Lightbulb, Loader2 } from 'lucide-react';
@@ -24,6 +25,7 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function LoginPage() {
     const { user, loading } = useAuth();
+    const { t } = useLanguage();
     const router = useRouter();
     const [error, setError] = React.useState<string | null>(null);
     const [signingIn, setSigningIn] = React.useState(false);
@@ -77,8 +79,8 @@ export default function LoginPage() {
                         <Lightbulb className="h-8 w-8 text-primary" />
                         <h1 className="font-headline text-3xl font-bold">ALAN</h1>
                     </div>
-                    <CardTitle className="text-2xl">Welcome Back</CardTitle>
-                    <CardDescription>Sign in to continue to the ALAN platform.</CardDescription>
+                    <CardTitle className="text-2xl">{t('loginWelcome')}</CardTitle>
+                    <CardDescription>{t('loginDescription')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {error && (
@@ -97,14 +99,21 @@ export default function LoginPage() {
                             htmlFor="terms"
                             className="text-sm leading-tight text-muted-foreground cursor-pointer"
                         >
-                            Acepto los{' '}
+                            {t('acceptTermsAndCookies')}{' '}
                             <Link
                                 href="/terms"
                                 className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
                             >
-                                términos y condiciones de uso
+                                {t('termsAndConditions')}
                             </Link>
-                            {' '}de esta app
+                            {' '}{t('and')}{' '}
+                            <Link
+                                href="/cookies"
+                                className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+                            >
+                                {t('cookiePolicy')}
+                            </Link>
+                            {' '}{t('ofThisApp')}
                         </label>
                     </div>
 
@@ -117,12 +126,12 @@ export default function LoginPage() {
                         {signingIn ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Iniciando sesión...
+                                {t('signingIn')}
                             </>
                         ) : (
                             <>
                                 <GoogleIcon className="mr-2" />
-                                Iniciar sesión con Google
+                                {t('signInWithGoogle')}
                             </>
                         )}
                     </Button>
