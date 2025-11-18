@@ -24,6 +24,8 @@ describe('Observations Service', () => {
       rating: 4,
       image: 'data:image/jpeg;base64,/9j/4AAQSkZJRg...',
       authorId: 'test-user-123',
+      locationPrecision: 'exact' as const,
+      isAnonymous: false,
     };
 
     it('should reject observations with invalid data', async () => {
@@ -98,13 +100,15 @@ describe('Observations Service', () => {
       });
     });
 
-    it('should accept observations without authorId', async () => {
-      const observationWithoutAuthor = {
+    it('should accept anonymous observations without authorId', async () => {
+      const anonymousObservation = {
         latitude: 40.7128,
         longitude: -74.006,
-        description: 'Test observation without author',
+        description: 'Test anonymous observation',
         rating: 3,
         image: 'data:image/jpeg;base64,/9j/4AAQSkZJRg...',
+        locationPrecision: 'anonymous' as const,
+        isAnonymous: true,
       };
 
       mockRef.mockReturnValue({} as any);
@@ -112,9 +116,38 @@ describe('Observations Service', () => {
       mockGetDownloadURL.mockResolvedValue('https://example.com/image.jpg');
       mockAddDoc.mockResolvedValue({ id: 'test-doc-id' } as any);
 
-      const result = await addObservation(observationWithoutAuthor);
+      const result = await addObservation(anonymousObservation);
 
       expect(result).toEqual({ success: true });
+
+      // Verify that the observation was added with rounded coordinates (1 decimal place)
+      const callArgs = mockAddDoc.mock.calls[0][1];
+      expect(callArgs.latitude).toBe(40.7); // Rounded to 1 decimal
+      expect(callArgs.longitude).toBe(-74.0); // Rounded to 1 decimal
+      expect(callArgs.isAnonymous).toBe(true);
+      expect(callArgs.locationPrecision).toBe('anonymous');
+      expect(callArgs.authorId).toBeUndefined();
+    });
+
+    it('should reject non-anonymous observations without authorId', async () => {
+      const observationWithoutAuthor = {
+        latitude: 40.7128,
+        longitude: -74.006,
+        description: 'Test observation without author',
+        rating: 3,
+        image: 'data:image/jpeg;base64,/9j/4AAQSkZJRg...',
+        locationPrecision: 'exact' as const,
+        isAnonymous: false,
+      };
+
+      mockRef.mockReturnValue({} as any);
+      mockUploadString.mockResolvedValue({ ref: {} } as any);
+      mockGetDownloadURL.mockResolvedValue('https://example.com/image.jpg');
+
+      const result = await addObservation(observationWithoutAuthor);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('authorId is required');
     });
 
     it('should validate latitude is a number', async () => {
@@ -133,6 +166,95 @@ describe('Observations Service', () => {
       };
 
       await expect(addObservation(invalidLongitude)).rejects.toThrow();
+    });
+
+    it('should round coordinates to 4 decimals for exact precision', async () => {
+      const exactObservation = {
+        ...validObservation,
+        latitude: 40.712834567,
+        longitude: -74.006098765,
+        locationPrecision: 'exact' as const,
+      };
+
+      mockRef.mockReturnValue({} as any);
+      mockUploadString.mockResolvedValue({ ref: {} } as any);
+      mockGetDownloadURL.mockResolvedValue('https://example.com/image.jpg');
+      mockAddDoc.mockResolvedValue({ id: 'test-doc-id' } as any);
+
+      await addObservation(exactObservation);
+
+      const callArgs = mockAddDoc.mock.calls[0][1];
+      expect(callArgs.latitude).toBe(40.7128); // 4 decimals = ±10m
+      expect(callArgs.longitude).toBe(-74.0061);
+      expect(callArgs.locationPrecision).toBe('exact');
+    });
+
+    it('should round coordinates to 2 decimals for approximate precision', async () => {
+      const approximateObservation = {
+        ...validObservation,
+        latitude: 40.712834567,
+        longitude: -74.006098765,
+        locationPrecision: 'approximate' as const,
+      };
+
+      mockRef.mockReturnValue({} as any);
+      mockUploadString.mockResolvedValue({ ref: {} } as any);
+      mockGetDownloadURL.mockResolvedValue('https://example.com/image.jpg');
+      mockAddDoc.mockResolvedValue({ id: 'test-doc-id' } as any);
+
+      await addObservation(approximateObservation);
+
+      const callArgs = mockAddDoc.mock.calls[0][1];
+      expect(callArgs.latitude).toBe(40.71); // 2 decimals = ±500m
+      expect(callArgs.longitude).toBe(-74.01);
+      expect(callArgs.locationPrecision).toBe('approximate');
+    });
+
+    it('should round coordinates to 1 decimal for anonymous precision', async () => {
+      const anonymousObservation = {
+        ...validObservation,
+        latitude: 40.712834567,
+        longitude: -74.006098765,
+        locationPrecision: 'anonymous' as const,
+        isAnonymous: true,
+        authorId: undefined,
+      };
+
+      mockRef.mockReturnValue({} as any);
+      mockUploadString.mockResolvedValue({ ref: {} } as any);
+      mockGetDownloadURL.mockResolvedValue('https://example.com/image.jpg');
+      mockAddDoc.mockResolvedValue({ id: 'test-doc-id' } as any);
+
+      await addObservation(anonymousObservation);
+
+      const callArgs = mockAddDoc.mock.calls[0][1];
+      expect(callArgs.latitude).toBe(40.7); // 1 decimal = ±5km
+      expect(callArgs.longitude).toBe(-74.0);
+      expect(callArgs.locationPrecision).toBe('anonymous');
+    });
+
+    it('should use exact precision by default', async () => {
+      const defaultPrecisionObservation = {
+        latitude: 40.712834567,
+        longitude: -74.006098765,
+        description: 'Test observation with default precision',
+        rating: 4,
+        image: 'data:image/jpeg;base64,/9j/4AAQSkZJRg...',
+        authorId: 'test-user-123',
+        // locationPrecision not specified - should default to 'exact'
+      };
+
+      mockRef.mockReturnValue({} as any);
+      mockUploadString.mockResolvedValue({ ref: {} } as any);
+      mockGetDownloadURL.mockResolvedValue('https://example.com/image.jpg');
+      mockAddDoc.mockResolvedValue({ id: 'test-doc-id' } as any);
+
+      await addObservation(defaultPrecisionObservation);
+
+      const callArgs = mockAddDoc.mock.calls[0][1];
+      expect(callArgs.latitude).toBe(40.7128); // Default to exact (4 decimals)
+      expect(callArgs.longitude).toBe(-74.0061);
+      expect(callArgs.locationPrecision).toBe('exact');
     });
   });
 });
