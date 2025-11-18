@@ -204,7 +204,10 @@ function roundCoordinates(latitude, longitude, precision) {
 **Finalidades específicas declaradas:**
 
 1. **Mapeo de contaminación lumínica** - Datos de observaciones
-2. **Investigación científica** - Análisis con IA (Google Gemini)
+2. **Investigación científica** - Análisis con IA (Google Gemini) y uso de datos GPS + calidad de iluminación para:
+   - Investigación científica sobre contaminación lumínica
+   - Publicaciones académicas (datos agregados y anonimizados)
+   - Informes técnicos para administraciones públicas
 3. **Gestión de cuenta de usuario** - Datos de autenticación
 4. **Moderación de contenido** - Datos de interacción (denuncias)
 5. **Mejora del servicio** - Valoraciones colaborativas
@@ -546,6 +549,13 @@ allow delete: if (
 - Investigación en contaminación lumínica es interés público (salud, biodiversidad)
 - Datos necesarios para mapeo preciso
 - Garantías apropiadas implementadas (niveles de precisión, anonimato)
+
+**Uso específico de datos para investigación científica:**
+- Datos de GPS (latitud/longitud) + calidad de iluminación (rating)
+- Finalidad: Investigación científica sobre contaminación lumínica
+- Publicaciones académicas con datos agregados y anonimizados
+- Informes técnicos para administraciones públicas
+- **Garantía:** Los datos se presentan siempre de forma agregada, sin identificación individual de usuarios
 
 #### 6.1.2. Garantías Apropiadas Implementadas
 
