@@ -324,7 +324,7 @@ export default function Home() {
                 <h4 className="font-semibold mt-4 text-lg">{t('creditsSupportTitle')}</h4>
                 <p className="text-base text-muted-foreground mb-3">{t('creditsSupportText')}</p>
                 <a
-                  href="https://buymeacoffee.com"
+                  href="https://buymeacoffee.com/alejandrocatalaespi"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
