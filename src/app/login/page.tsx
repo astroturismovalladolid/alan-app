@@ -11,7 +11,8 @@ import { useAuth } from '@/context/auth-context';
 import { useLanguage } from '@/context/language-context';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
-import { Lightbulb, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import Image from 'next/image';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
@@ -30,6 +31,7 @@ export default function LoginPage() {
     const [error, setError] = React.useState<string | null>(null);
     const [signingIn, setSigningIn] = React.useState(false);
     const [termsAccepted, setTermsAccepted] = React.useState(false);
+    const [minAgeConfirmed, setMinAgeConfirmed] = React.useState(false);
 
     useEffect(() => {
         if (!loading && user) {
@@ -76,7 +78,7 @@ export default function LoginPage() {
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
                     <div className="mx-auto mb-4 flex items-center gap-2">
-                        <Lightbulb className="h-8 w-8 text-primary" />
+                        <Image src="/icon.svg" alt="ALAN" width={32} height={32} className="h-8 w-8" />
                         <h1 className="font-headline text-3xl font-bold">ALAN</h1>
                     </div>
                     <CardTitle className="text-2xl">{t('loginWelcome')}</CardTitle>
@@ -89,39 +91,61 @@ export default function LoginPage() {
                         </div>
                     )}
 
-                    <div className="flex items-start space-x-3">
-                        <Checkbox
-                            id="terms"
-                            checked={termsAccepted}
-                            onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-                        />
-                        <label
-                            htmlFor="terms"
-                            className="text-sm leading-tight text-muted-foreground cursor-pointer"
-                        >
-                            {t('acceptTermsAndCookies')}{' '}
-                            <Link
-                                href="/terms"
-                                className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+                    <div className="space-y-3">
+                        <div className="flex items-start space-x-3">
+                            <Checkbox
+                                id="terms"
+                                checked={termsAccepted}
+                                onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+                            />
+                            <label
+                                htmlFor="terms"
+                                className="text-sm leading-tight text-muted-foreground cursor-pointer"
                             >
-                                {t('termsAndConditions')}
-                            </Link>
-                            {' '}{t('and')}{' '}
-                            <Link
-                                href="/cookies"
-                                className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+                                {t('acceptTermsCookiesPrivacy')}{' '}
+                                <Link
+                                    href="/terms"
+                                    className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+                                >
+                                    {t('termsAndConditions')}
+                                </Link>
+                                {', '}
+                                <Link
+                                    href="/cookies"
+                                    className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+                                >
+                                    {t('cookiePolicy')}
+                                </Link>
+                                {' '}{t('and')}{' '}
+                                <Link
+                                    href="/privacy"
+                                    className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+                                >
+                                    {t('privacyPolicy')}
+                                </Link>
+                            </label>
+                        </div>
+
+                        <div className="flex items-start space-x-3">
+                            <Checkbox
+                                id="minAge"
+                                checked={minAgeConfirmed}
+                                onCheckedChange={(checked) => setMinAgeConfirmed(checked === true)}
+                            />
+                            <label
+                                htmlFor="minAge"
+                                className="text-sm leading-tight text-muted-foreground cursor-pointer"
                             >
-                                {t('cookiePolicy')}
-                            </Link>
-                            {' '}{t('ofThisApp')}
-                        </label>
+                                {t('minAge')}
+                            </label>
+                        </div>
                     </div>
 
                     <Button
                         onClick={handleGoogleSignIn}
                         className="w-full"
                         size="lg"
-                        disabled={signingIn || !termsAccepted}
+                        disabled={signingIn || !termsAccepted || !minAgeConfirmed}
                     >
                         {signingIn ? (
                             <>

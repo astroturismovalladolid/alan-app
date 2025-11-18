@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Camera, ChevronDown, Loader2, HelpCircle } from 'lucide-react';
+import { Camera, ChevronDown, Loader2, CircleHelp } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -159,7 +159,7 @@ export default function Home() {
           className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
           onClick={() => setInfoModalOpen(true)}
         >
-          <HelpCircle className="h-6 w-6" strokeWidth={2.5} />
+          <CircleHelp className="h-14 w-14" strokeWidth={1.5} />
         </Button>
       </div>
       <div className="absolute bottom-8 right-8 z-[1000]">
@@ -168,7 +168,7 @@ export default function Home() {
           className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
           onClick={() => setUploadModalOpen(true)}
         >
-          <Camera className="h-6 w-6" strokeWidth={2.5} />
+          <Camera className="h-14 w-14" strokeWidth={1.5} />
         </Button>
       </div>
 
@@ -324,13 +324,15 @@ export default function Home() {
                 <h4 className="font-semibold mt-4 text-lg">{t('creditsSupportTitle')}</h4>
                 <p className="text-base text-muted-foreground mb-3">{t('creditsSupportText')}</p>
                 <a
-                  href="https://buymeacoffee.com/alejandrocatalaespi"
+                  href="https://www.buymeacoffee.com/alejandrocatalaespi"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Button className="w-full sm:w-auto" variant="default">
-                    {t('supportButton')}
-                  </Button>
+                  <img
+                    src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=alejandrocatalaespi&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff"
+                    alt={t('supportButton')}
+                    className="h-12"
+                  />
                 </a>
               </div>
             </TabsContent>
