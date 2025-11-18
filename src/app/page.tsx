@@ -328,9 +328,9 @@ export default function Home() {
                 <div className="text-base text-muted-foreground">
                   <p>• <a href="https://darksky.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">International Dark-Sky Association (IDA)</a></p>
                   <p>• <a href="https://syrma.net" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Sociedad Astronómica Syrma</a></p>
-                  <p>• {t('creditsAcknowledgmentsText').split('\n')[2]}</p>
-                  <p>• {t('creditsAcknowledgmentsText').split('\n')[3]}</p>
-                  <p>• {t('creditsAcknowledgmentsText').split('\n')[4]}</p>
+                  <p>{t('creditsAcknowledgmentsText').split('\n')[2]}</p>
+                  <p>{t('creditsAcknowledgmentsText').split('\n')[3]}</p>
+                  <p>{t('creditsAcknowledgmentsText').split('\n')[4]}</p>
                 </div>
 
                 <h4 className="font-semibold mt-4 text-lg">{t('creditsResourcesTitle')}</h4>
@@ -344,18 +344,20 @@ export default function Home() {
                 <p className="text-base text-muted-foreground">{t('creditsLicenseText')}</p>
 
                 <h4 className="font-semibold mt-4 text-lg">{t('creditsSupportTitle')}</h4>
-                <p className="text-base text-muted-foreground mb-3">{t('creditsSupportText')}</p>
-                <a
-                  href="https://www.buymeacoffee.com/alejandrocatalaespi"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=alejandrocatalaespi&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff"
-                    alt={t('supportButton')}
-                    className="h-12"
-                  />
-                </a>
+                <p className="text-base text-muted-foreground mb-6">{t('creditsSupportText')}</p>
+                <div className="flex justify-center">
+                  <a
+                    href="https://www.buymeacoffee.com/alejandrocatalaespi"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=alejandrocatalaespi&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff"
+                      alt={t('supportButton')}
+                      className="h-12"
+                    />
+                  </a>
+                </div>
               </div>
             </TabsContent>
           </Tabs>
