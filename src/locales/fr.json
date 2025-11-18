@@ -198,7 +198,7 @@
   "profileDataTitle": "Données de profil (optionnelles)",
   "profileDataText": "• Biographie personnalisée\n• Photo de profil personnalisée",
   "observationDataTitle": "Données d'observations",
-  "observationDataText": "• Images de pollution lumineuse\n• Localisation GPS (latitude/longitude) - DONNÉE SENSIBLE\n• Description de l'observation\n• Évaluation (note de 1 à 5)\n• Date et heure de création",
+  "observationDataText": "• Images de pollution lumineuse\n• Localisation GPS (latitude/longitude) - DONNÉE SENSIBLE\n\n⚠️ IMPORTANT: Votre localisation GPS sera PUBLIQUEMENT VISIBLE sur la carte pour toute personne accédant à l'application. Avant de télécharger une observation, vous pourrez choisir entre:\n\n  • Localisation exacte (±10m) - Précision scientifique maximale, recommandée pour la recherche\n  • Localisation approximative (±500m) - Plus de confidentialité, cache votre localisation exacte\n  • Localisation générale (±5km) - Confidentialité maximale, protège complètement votre localisation\n  • Observation anonyme - Non liée à votre compte, vous ne pourrez pas la modifier ou supprimer plus tard\n\n• Description de l'observation\n• Évaluation (note de 1 à 5)\n• Date et heure de création",
   "interactionDataTitle": "Données d'interaction",
   "interactionDataText": "• Évaluations des observations d'autres utilisateurs\n• Signalements de contenu inapproprié\n• Date et heure des actions",
   "legalBasisTitle": "3. Base Juridique du Traitement",
