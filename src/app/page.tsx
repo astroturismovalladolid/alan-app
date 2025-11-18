@@ -14,7 +14,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Camera, ChevronDown, Loader2, HelpCircle } from 'lucide-react';
+import { ChevronDown, Loader2 } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCamera, faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
 import {
   Dialog,
   DialogContent,
@@ -170,7 +172,7 @@ export default function Home() {
           className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
           onClick={() => setInfoModalOpen(true)}
         >
-          <HelpCircle size={56} strokeWidth={1.5} />
+          <FontAwesomeIcon icon={faCircleQuestion} className="w-12 h-12" />
         </Button>
       </div>
       <div className="absolute bottom-8 right-8 z-[1000]">
@@ -179,7 +181,7 @@ export default function Home() {
           className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
           onClick={() => setUploadModalOpen(true)}
         >
-          <Camera size={56} strokeWidth={1.5} />
+          <FontAwesomeIcon icon={faCamera} className="w-12 h-12" />
         </Button>
       </div>
 
