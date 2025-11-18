@@ -25,6 +25,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UploadForm } from './upload/upload-form';
 import { ProfileForm } from './profile/profile-form';
+import { PrivacyDashboard } from './profile/privacy-dashboard';
 import { SettingsForm } from './settings/settings-form';
 import { useLanguage } from '@/context/language-context';
 import dynamic from 'next/dynamic';
@@ -185,14 +186,25 @@ export default function Home() {
       </Dialog>
 
       <Dialog open={isProfileModalOpen} onOpenChange={setProfileModalOpen}>
-        <DialogContent className="sm:max-w-[425px] max-h-[85vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{t('editProfile')}</DialogTitle>
+            <DialogTitle>{t('myAccount')}</DialogTitle>
             <DialogDescription>
               {t('manageYourAccount')}
             </DialogDescription>
           </DialogHeader>
-          <ProfileForm onUpdateSuccess={handleProfileUpdate} />
+          <Tabs defaultValue="profile" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="profile">{t('profile')}</TabsTrigger>
+              <TabsTrigger value="privacy">{t('privacyDashboard')}</TabsTrigger>
+            </TabsList>
+            <TabsContent value="profile" className="mt-4">
+              <ProfileForm onUpdateSuccess={handleProfileUpdate} />
+            </TabsContent>
+            <TabsContent value="privacy" className="mt-4">
+              <PrivacyDashboard />
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
 
