@@ -172,7 +172,7 @@ function roundCoordinates(latitude, longitude, precision) {
 
 2. **Advertencia explícita GPS público** (3 idiomas: ES, EN, FR)
    ```
-   ⚠️ IMPORTANTE: Tu ubicación GPS será VISIBLE PÚBLICAMENTE
+   ⚠️ IMPORTANTE: La ubicación GPS de las fotos que tomes será VISIBLE PÚBLICAMENTE
    en el mapa para cualquier persona que acceda a la aplicación.
 
    Antes de subir una observación, podrás elegir entre:
@@ -880,7 +880,7 @@ const form = useForm({
 <Alert variant="destructive" className="border-amber-500 bg-amber-50">
   <AlertTriangle className="h-4 w-4 text-amber-600" />
   <AlertDescription className="text-amber-800">
-    <strong>⚠️ IMPORTANTE: Tu ubicación GPS será VISIBLE PÚBLICAMENTE</strong>
+    <strong>⚠️ IMPORTANTE: La ubicación GPS de las fotos que tomes será VISIBLE PÚBLICAMENTE</strong>
     <br />
     <span>Cualquier persona podrá ver dónde y cuándo tomaste esta foto. Elige el nivel de precisión:</span>
   </AlertDescription>
@@ -1152,8 +1152,8 @@ function roundCoordinates(
 
 **Español:**
 ```
-⚠️ IMPORTANTE: Tu ubicación GPS será VISIBLE PÚBLICAMENTE en el mapa
-para cualquier persona que acceda a la aplicación.
+⚠️ IMPORTANTE: La ubicación GPS de las fotos que tomes será VISIBLE PÚBLICAMENTE
+en el mapa para cualquier persona que acceda a la aplicación.
 
 Antes de subir una observación, podrás elegir entre:
 • Ubicación exacta (±10m) - Máxima precisión científica

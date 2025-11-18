@@ -225,7 +225,7 @@
   "minAge": "I confirm that I am over 16 years old",
   "retryLocation": "Retry getting location",
   "locationPrivacy": "Location Privacy",
-  "locationPrivacyWarning": "⚠️ IMPORTANT: Your GPS location will be publicly visible on the map",
+  "locationPrivacyWarning": "⚠️ IMPORTANT: The GPS location of the photos you take will be publicly visible on the map",
   "locationPrivacyDescription": "Anyone will be able to see where and when you took this photo. Choose precision level:",
   "locationPrecisionExact": "Exact location (maximum scientific precision)",
   "locationPrecisionExactDesc": "Precise GPS (±10m). Recommended for research.",
