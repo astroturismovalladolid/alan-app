@@ -222,5 +222,6 @@
   "updatesPrivacyTitle": "12. Mises à Jour de cette Politique",
   "updatesPrivacyText": "Nous pouvons mettre à jour cette Politique de Confidentialité occasionnellement. Nous vous informerons des changements significatifs par notification dans l'application ou par email. La date de dernière mise à jour est indiquée au début de ce document.",
   "acceptTermsCookiesPrivacy": "J'accepte les",
-  "minAge": "Je confirme avoir plus de 16 ans"
+  "minAge": "Je confirme avoir plus de 16 ans",
+  "retryLocation": "Réessayer d'obtenir la localisation"
 }

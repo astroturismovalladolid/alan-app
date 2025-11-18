@@ -222,5 +222,6 @@
   "updatesPrivacyTitle": "12. Updates to this Policy",
   "updatesPrivacyText": "We may update this Privacy Policy occasionally. We will notify you of significant changes through in-app notice or email. The last update date is indicated at the beginning of this document.",
   "acceptTermsCookiesPrivacy": "I accept the",
-  "minAge": "I confirm that I am over 16 years old"
+  "minAge": "I confirm that I am over 16 years old",
+  "retryLocation": "Retry getting location"
 }

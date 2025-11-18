@@ -222,5 +222,6 @@
   "updatesPrivacyTitle": "12. Actualizaciones de esta Política",
   "updatesPrivacyText": "Podemos actualizar esta Política de Privacidad ocasionalmente. Te notificaremos de cambios significativos mediante aviso en la aplicación o por email. La fecha de última actualización se indica al inicio de este documento.",
   "acceptTermsCookiesPrivacy": "Acepto los",
-  "minAge": "Confirmo que soy mayor de 16 años"
+  "minAge": "Confirmo que soy mayor de 16 años",
+  "retryLocation": "Reintentar obtener ubicación"
 }

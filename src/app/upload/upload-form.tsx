@@ -88,28 +88,39 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     },
   });
 
-  useEffect(() => {
-    const getLocation = () => {
-      if (!navigator.geolocation) {
-        setLocationError(t('geolocationNotSupported'));
-        return;
-      }
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setLocation({ lat: latitude, lon: longitude });
-          form.setValue('latitude', latitude);
-          form.setValue('longitude', longitude);
-          setLocationError(null);
-        },
-        () => {
-          setLocationError(t('geolocationPermissionDenied'));
-        }
-      );
-    };
+  const getLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError(t('geolocationNotSupported'));
+      return;
+    }
 
+    setLocationError(null); // Clear previous errors
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setLocation({ lat: latitude, lon: longitude });
+        form.setValue('latitude', latitude);
+        form.setValue('longitude', longitude);
+        setLocationError(null);
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        setLocationError(t('geolocationPermissionDenied'));
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  };
+
+  useEffect(() => {
+    // Try to get location on mount, but this might be blocked by browser
+    // If blocked, it will be requested again when user interacts
     getLocation();
-  }, [form, t]);
+  }, []);
 
   const handleImageCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -233,19 +244,32 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
             
             <FormItem>
               <FormLabel>{t('location')}</FormLabel>
-              <div className="flex items-center gap-2 p-3 rounded-md border bg-muted/50">
-                <LocateFixed className="h-5 w-5 text-muted-foreground" />
-                <div className="text-sm">
-                  {location ? (
-                    <span>
-                      Lat: {location.lat.toFixed(4)}, Lon: {location.lon.toFixed(4)}
-                    </span>
-                  ) : locationError ? (
-                    <span className="text-destructive">{locationError}</span>
-                  ) : (
-                    <span>{t('fetchingLocation')}</span>
-                  )}
+              <div className="flex items-center gap-2">
+                <div className="flex-1 flex items-center gap-2 p-3 rounded-md border bg-muted/50">
+                  <LocateFixed className="h-5 w-5 text-muted-foreground" />
+                  <div className="text-sm">
+                    {location ? (
+                      <span>
+                        Lat: {location.lat.toFixed(4)}, Lon: {location.lon.toFixed(4)}
+                      </span>
+                    ) : locationError ? (
+                      <span className="text-destructive">{locationError}</span>
+                    ) : (
+                      <span>{t('fetchingLocation')}</span>
+                    )}
+                  </div>
                 </div>
+                {(locationError || !location) && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={getLocation}
+                    title={t('retryLocation') || 'Retry location'}
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
               <FormField control={form.control} name="latitude" render={() => <FormMessage />} />
             </FormItem>
