@@ -82,7 +82,7 @@ describe('Observations Service', () => {
 
       expect(result).toEqual({
         success: false,
-        error: 'Failed to add observation.',
+        error: 'Upload failed',
       });
     });
 
@@ -96,7 +96,7 @@ describe('Observations Service', () => {
 
       expect(result).toEqual({
         success: false,
-        error: 'Failed to add observation.',
+        error: 'Firestore error',
       });
     });
 
