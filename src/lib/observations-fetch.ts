@@ -115,6 +115,20 @@ export async function reportObservation(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const observationRef = doc(db, 'observations', observationId);
+    const observationDoc = await getDoc(observationRef);
+
+    if (!observationDoc.exists()) {
+      return { success: false, error: 'Observation not found' };
+    }
+
+    const data = observationDoc.data();
+    const reports = data.reports || [];
+
+    // Check if user already reported this observation
+    const alreadyReported = reports.some((report: any) => report.userId === userId);
+    if (alreadyReported) {
+      return { success: false, error: 'You have already reported this observation' };
+    }
 
     await updateDoc(observationRef, {
       reports: arrayUnion({
@@ -127,6 +141,35 @@ export async function reportObservation(
     return { success: true };
   } catch (error: any) {
     console.error('Error reporting observation:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function unreportObservation(
+  observationId: string,
+  userId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const observationRef = doc(db, 'observations', observationId);
+    const observationDoc = await getDoc(observationRef);
+
+    if (!observationDoc.exists()) {
+      return { success: false, error: 'Observation not found' };
+    }
+
+    const data = observationDoc.data();
+    const reports = data.reports || [];
+
+    // Filter out the user's report
+    const updatedReports = reports.filter((report: any) => report.userId !== userId);
+
+    await updateDoc(observationRef, {
+      reports: updatedReports,
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error unreporting observation:', error);
     return { success: false, error: error.message };
   }
 }

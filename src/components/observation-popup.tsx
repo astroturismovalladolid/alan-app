@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/context/auth-context';
 import { useLanguage } from '@/context/language-context';
-import { addRating, reportObservation, deleteObservation, type Observation } from '@/lib/observations-fetch';
+import { addRating, reportObservation, unreportObservation, deleteObservation, type Observation } from '@/lib/observations-fetch';
 import { cn } from '@/lib/utils';
 
 interface ObservationPopupProps {
@@ -35,6 +35,7 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
   const averageRating = ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length;
   const userHasRated = user?.uid ? observation.ratings[user.uid] !== undefined : false;
   const userRating = user?.uid ? observation.ratings[user.uid] : undefined;
+  const userHasReported = user?.uid ? observation.reports.some(report => report.userId === user.uid) : false;
 
   // Helper function to format timestamp
   const formatTimestamp = (timestamp: any): string => {
@@ -144,6 +145,28 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
       onReported();
     } else {
       setError(result.error || t('failedToReport'));
+    }
+
+    setIsSubmitting(false);
+  };
+
+  const handleUnreport = async () => {
+    if (!user) {
+      setError(t('mustBeLoggedInToReport'));
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+    setSuccess(null);
+
+    const result = await unreportObservation(observation.id, user.uid);
+
+    if (result.success) {
+      setSuccess(t('reportRemoved'));
+      onReported();
+    } else {
+      setError(result.error || t('failedToUnreport'));
     }
 
     setIsSubmitting(false);
@@ -272,15 +295,29 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
                   <Star className="h-4 w-4 mr-1" />
                   {userHasRated ? t('changeRating') : t('rate')}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => setShowReportForm(true)}
-                >
-                  <Flag className="h-4 w-4 mr-1" />
-                  {t('reportBtn')}
-                </Button>
+                {!userHasReported ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setShowReportForm(true)}
+                  >
+                    <Flag className="h-4 w-4 mr-1" />
+                    {t('reportBtn')}
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={handleUnreport}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+                    <Flag className="h-4 w-4 mr-1" />
+                    {t('unreportBtn')}
+                  </Button>
+                )}
               </div>
             )}
 

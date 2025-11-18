@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Camera, ChevronDown, Loader2, HelpCircle } from 'lucide-react';
+import { Camera, ChevronDown, Loader2, CircleHelp } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -158,7 +158,7 @@ export default function Home() {
           className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
           onClick={() => setInfoModalOpen(true)}
         >
-          <HelpCircle className="h-8 w-8" />
+          <CircleHelp className="h-10 w-10" />
         </Button>
       </div>
       <div className="absolute bottom-8 right-8 z-[1000]">
@@ -167,7 +167,7 @@ export default function Home() {
           className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
           onClick={() => setUploadModalOpen(true)}
         >
-          <Camera className="h-8 w-8" />
+          <Camera className="h-10 w-10" />
         </Button>
       </div>
 
@@ -208,102 +208,98 @@ export default function Home() {
       </Dialog>
 
       <Dialog open={isInfoModalOpen} onOpenChange={setInfoModalOpen}>
-        <DialogContent className="sm:max-w-[700px] max-h-[85vh] flex flex-col p-0">
-          <DialogHeader className="px-6 pt-6 pb-4">
-            <DialogTitle>{t('infoModalTitle')}</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">{t('infoModalTitle')}</DialogTitle>
+            <DialogDescription className="text-base">
               {t('infoModalDescription')}
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs defaultValue="pollution" className="w-full flex-1 flex flex-col">
-            <div className="sticky top-0 bg-background z-10 px-6 pb-2">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="pollution">{t('tabPollution')}</TabsTrigger>
-                <TabsTrigger value="lighting">{t('tabLighting')}</TabsTrigger>
-                <TabsTrigger value="app">{t('tabApp')}</TabsTrigger>
-                <TabsTrigger value="credits">{t('tabCredits')}</TabsTrigger>
-              </TabsList>
-            </div>
+          <Tabs defaultValue="pollution" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="pollution">{t('tabPollution')}</TabsTrigger>
+              <TabsTrigger value="lighting">{t('tabLighting')}</TabsTrigger>
+              <TabsTrigger value="app">{t('tabApp')}</TabsTrigger>
+              <TabsTrigger value="credits">{t('tabCredits')}</TabsTrigger>
+            </TabsList>
 
-            <div className="overflow-y-auto px-6 pb-6">
-              <TabsContent value="pollution" className="space-y-4 mt-0">
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-lg">{t('pollutionTitle')}</h3>
-                  <p className="text-sm text-muted-foreground">{t('pollutionIntro')}</p>
+            <TabsContent value="pollution" className="space-y-4">
+              <div className="space-y-3">
+                <h3 className="font-semibold text-xl">{t('pollutionTitle')}</h3>
+                <p className="text-base text-muted-foreground">{t('pollutionIntro')}</p>
 
-                  <h4 className="font-semibold mt-4">{t('pollutionHealthTitle')}</h4>
-                  <p className="text-sm text-muted-foreground">{t('pollutionHealthText')}</p>
-                  <p className="text-xs text-muted-foreground italic">{t('pollutionHealthRefs')}</p>
+                <h4 className="font-semibold mt-4 text-lg">{t('pollutionHealthTitle')}</h4>
+                <p className="text-base text-muted-foreground">{t('pollutionHealthText')}</p>
+                <p className="text-sm text-muted-foreground italic">{t('pollutionHealthRefs')}</p>
 
-                  <h4 className="font-semibold mt-4">{t('pollutionBiodiversityTitle')}</h4>
-                  <p className="text-sm text-muted-foreground">{t('pollutionBiodiversityText')}</p>
-                  <p className="text-xs text-muted-foreground italic">{t('pollutionBiodiversityRefs')}</p>
+                <h4 className="font-semibold mt-4 text-lg">{t('pollutionBiodiversityTitle')}</h4>
+                <p className="text-base text-muted-foreground">{t('pollutionBiodiversityText')}</p>
+                <p className="text-sm text-muted-foreground italic">{t('pollutionBiodiversityRefs')}</p>
 
-                  <h4 className="font-semibold mt-4">{t('pollutionNightSkyTitle')}</h4>
-                  <p className="text-sm text-muted-foreground">{t('pollutionNightSkyText')}</p>
-                  <p className="text-xs text-muted-foreground italic">{t('pollutionNightSkyRefs')}</p>
-                </div>
-              </TabsContent>
+                <h4 className="font-semibold mt-4 text-lg">{t('pollutionNightSkyTitle')}</h4>
+                <p className="text-base text-muted-foreground">{t('pollutionNightSkyText')}</p>
+                <p className="text-sm text-muted-foreground italic">{t('pollutionNightSkyRefs')}</p>
+              </div>
+            </TabsContent>
 
-              <TabsContent value="lighting" className="space-y-4 mt-0">
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-lg">{t('lightingTitle')}</h3>
-                  <p className="text-sm text-muted-foreground">{t('lightingIntro')}</p>
+            <TabsContent value="lighting" className="space-y-4">
+              <div className="space-y-3">
+                <h3 className="font-semibold text-xl">{t('lightingTitle')}</h3>
+                <p className="text-base text-muted-foreground">{t('lightingIntro')}</p>
 
-                  <h4 className="font-semibold mt-4">{t('lightingColorTitle')}</h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line">{t('lightingColorText')}</p>
+                <h4 className="font-semibold mt-4 text-lg">{t('lightingColorTitle')}</h4>
+                <p className="text-base text-muted-foreground whitespace-pre-line">{t('lightingColorText')}</p>
 
-                  <h4 className="font-semibold mt-4">{t('lightingOrientationTitle')}</h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line">{t('lightingOrientationText')}</p>
+                <h4 className="font-semibold mt-4 text-lg">{t('lightingOrientationTitle')}</h4>
+                <p className="text-base text-muted-foreground whitespace-pre-line">{t('lightingOrientationText')}</p>
 
-                  <h4 className="font-semibold mt-4">{t('lightingIntensityTitle')}</h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line">{t('lightingIntensityText')}</p>
+                <h4 className="font-semibold mt-4 text-lg">{t('lightingIntensityTitle')}</h4>
+                <p className="text-base text-muted-foreground whitespace-pre-line">{t('lightingIntensityText')}</p>
 
-                  <h4 className="font-semibold mt-4">{t('lightingDetectionTitle')}</h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line">{t('lightingDetectionText')}</p>
-                </div>
-              </TabsContent>
+                <h4 className="font-semibold mt-4 text-lg">{t('lightingDetectionTitle')}</h4>
+                <p className="text-base text-muted-foreground whitespace-pre-line">{t('lightingDetectionText')}</p>
+              </div>
+            </TabsContent>
 
-              <TabsContent value="app" className="space-y-4 mt-0">
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-lg">{t('appTitle')}</h3>
+            <TabsContent value="app" className="space-y-4">
+              <div className="space-y-3">
+                <h3 className="font-semibold text-xl">{t('appTitle')}</h3>
 
-                  <h4 className="font-semibold mt-4">{t('appCaptureTitle')}</h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line">{t('appCaptureText')}</p>
+                <h4 className="font-semibold mt-4 text-lg">{t('appCaptureTitle')}</h4>
+                <p className="text-base text-muted-foreground whitespace-pre-line">{t('appCaptureText')}</p>
 
-                  <h4 className="font-semibold mt-4">{t('appMapTitle')}</h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line">{t('appMapText')}</p>
+                <h4 className="font-semibold mt-4 text-lg">{t('appMapTitle')}</h4>
+                <p className="text-base text-muted-foreground whitespace-pre-line">{t('appMapText')}</p>
 
-                  <h4 className="font-semibold mt-4">{t('appCollaborateTitle')}</h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line">{t('appCollaborateText')}</p>
+                <h4 className="font-semibold mt-4 text-lg">{t('appCollaborateTitle')}</h4>
+                <p className="text-base text-muted-foreground whitespace-pre-line">{t('appCollaborateText')}</p>
 
-                  <h4 className="font-semibold mt-4">{t('appSettingsTitle')}</h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line">{t('appSettingsText')}</p>
-                </div>
-              </TabsContent>
+                <h4 className="font-semibold mt-4 text-lg">{t('appSettingsTitle')}</h4>
+                <p className="text-base text-muted-foreground whitespace-pre-line">{t('appSettingsText')}</p>
+              </div>
+            </TabsContent>
 
-              <TabsContent value="credits" className="space-y-4 mt-0">
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-lg">{t('creditsTitle')}</h3>
+            <TabsContent value="credits" className="space-y-4">
+              <div className="space-y-3">
+                <h3 className="font-semibold text-xl">{t('creditsTitle')}</h3>
 
-                  <h4 className="font-semibold mt-4">{t('creditsAboutTitle')}</h4>
-                  <p className="text-sm text-muted-foreground">{t('creditsAboutText')}</p>
+                <h4 className="font-semibold mt-4 text-lg">{t('creditsAboutTitle')}</h4>
+                <p className="text-base text-muted-foreground">{t('creditsAboutText')}</p>
 
-                  <h4 className="font-semibold mt-4">{t('creditsDevelopmentTitle')}</h4>
-                  <p className="text-sm text-muted-foreground">{t('creditsDevelopmentText')}</p>
+                <h4 className="font-semibold mt-4 text-lg">{t('creditsDevelopmentTitle')}</h4>
+                <p className="text-base text-muted-foreground">{t('creditsDevelopmentText')}</p>
 
-                  <h4 className="font-semibold mt-4">{t('creditsAcknowledgmentsTitle')}</h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line">{t('creditsAcknowledgmentsText')}</p>
+                <h4 className="font-semibold mt-4 text-lg">{t('creditsAcknowledgmentsTitle')}</h4>
+                <p className="text-base text-muted-foreground whitespace-pre-line">{t('creditsAcknowledgmentsText')}</p>
 
-                  <h4 className="font-semibold mt-4">{t('creditsResourcesTitle')}</h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line">{t('creditsResourcesText')}</p>
+                <h4 className="font-semibold mt-4 text-lg">{t('creditsResourcesTitle')}</h4>
+                <p className="text-base text-muted-foreground whitespace-pre-line">{t('creditsResourcesText')}</p>
 
-                  <h4 className="font-semibold mt-4">{t('creditsLicenseTitle')}</h4>
-                  <p className="text-sm text-muted-foreground">{t('creditsLicenseText')}</p>
-                </div>
-              </TabsContent>
-            </div>
+                <h4 className="font-semibold mt-4 text-lg">{t('creditsLicenseTitle')}</h4>
+                <p className="text-base text-muted-foreground">{t('creditsLicenseText')}</p>
+              </div>
+            </TabsContent>
           </Tabs>
         </DialogContent>
       </Dialog>
