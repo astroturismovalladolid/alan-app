@@ -202,9 +202,10 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
       {/* Image */}
       <div className="relative w-full h-64 sm:h-80 bg-muted rounded-t-lg overflow-hidden flex items-center justify-center">
         <img
-          src={observation.imageUrl}
+          src={observation.thumbnailUrl || observation.imageUrl}
           alt="Observation"
           className="max-w-full max-h-full object-contain"
+          loading="lazy"
         />
       </div>
 

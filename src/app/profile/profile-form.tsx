@@ -17,10 +17,11 @@ import { useLanguage } from '@/context/language-context';
 import { useAuth } from '@/context/auth-context';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import type { SecurityRuleContext } from '@/firebase/errors';
+import { dataUrlToBlob, getImageMetadata } from '@/lib/image-utils';
 
 const profileFormSchema = z.object({
   username: z.string().min(2, 'Username must be at least 2 characters.'),
@@ -119,7 +120,10 @@ export function ProfileForm({ onUpdateSuccess }: ProfileFormProps) {
       if (form.formState.dirtyFields.avatar && data.avatar && data.avatar.startsWith('data:image')) {
           const storage = getStorage();
           const avatarRef = ref(storage, `avatars/${user.uid}`);
-          await uploadString(avatarRef, data.avatar, 'data_url');
+          const avatarBlob = dataUrlToBlob(data.avatar);
+          const metadata = getImageMetadata('image/jpeg');
+
+          await uploadBytes(avatarRef, avatarBlob, metadata);
           avatarUrl = await getDownloadURL(avatarRef);
       }
 

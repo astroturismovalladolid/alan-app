@@ -1,8 +1,9 @@
 import { db, storage } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { z } from 'zod';
 import { LocationPrecision } from './types';
+import { dataUrlToBlob, getThumbnailUrl, getImageMetadata } from '@/lib/image-utils';
 
 const ObservationSchema = z.object({
   latitude: z.number(),
@@ -78,18 +79,25 @@ export async function addObservation(data: ObservationInput) {
   } = validation.data;
 
   try {
-    // 1. Upload image to Firebase Storage
+    // 1. Upload image to Firebase Storage with optimized cache headers
     const imageName = `observation_${Date.now()}.jpg`;
     const storageRef = ref(storage, `observations/${imageName}`);
-    const uploadResult = await uploadString(storageRef, image, 'data_url');
+    const imageBlob = dataUrlToBlob(image);
+    const metadata = getImageMetadata('image/jpeg');
+
+    const uploadResult = await uploadBytes(storageRef, imageBlob, metadata);
     const imageUrl = await getDownloadURL(uploadResult.ref);
 
-    // 2. Round coordinates based on privacy precision level
+    // 2. Generate thumbnail URL (Firebase extension will create this file automatically)
+    const thumbnailUrl = getThumbnailUrl(imageUrl, imageName);
+
+    // 3. Round coordinates based on privacy precision level
     const roundedCoords = roundCoordinates(latitude, longitude, locationPrecision);
 
-    // 3. Prepare observation data
+    // 4. Prepare observation data
     const observationData: any = {
-      imageUrl,
+      imageUrl, // Original full-resolution image (for scientific downloads)
+      thumbnailUrl, // Optimized thumbnail for UI display
       latitude: roundedCoords.latitude,
       longitude: roundedCoords.longitude,
       description,
