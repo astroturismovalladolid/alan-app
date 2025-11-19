@@ -28,13 +28,16 @@ Paths that contain images you want to resize:
 observations,avatars
 
 Sizes of images to create:
-400x400
+800x800
 
 Convert to preferred image format:
 webp
 
 Quality for WebP conversion:
 85
+
+Make images fit in specified sizes:
+Yes (preserve aspect ratio)
 
 Deletion of original file:
 No (mantener original para descargas científicas)
@@ -43,15 +46,16 @@ Cache-Control header:
 public,max-age=31536000,immutable
 
 Resized images location suffix:
-_400x400
+_800x800
 ```
 
 ### Verificación
 
 Después de instalar:
 1. Sube una imagen de prueba a `/observations/test.jpg`
-2. Verifica que se genere automáticamente `/observations/test_400x400.webp`
-3. Comprueba que el tamaño del thumbnail sea ~20-50kB vs ~500kB del original
+2. Verifica que se genere automáticamente `/observations/test_800x800.webp`
+3. Comprueba que el tamaño del thumbnail sea ~50-150kB vs ~500kB-2MB del original
+4. Verifica que el aspect ratio se preserve (imágenes no deformadas)
 
 ## Paso 2: Cambios en el Código (Ya Implementados)
 

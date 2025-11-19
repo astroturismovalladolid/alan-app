@@ -22,14 +22,15 @@ export function dataUrlToBlob(dataUrl: string): Blob {
 /**
  * Generate thumbnail URL from original image URL
  * This assumes the Firebase "Resize Images" extension is installed
- * and configured to create thumbnails with the suffix "_400x400.webp"
+ * and configured to create thumbnails with the suffix "_800x800.webp"
+ * The extension preserves aspect ratio, so this is a max dimension, not exact size
  *
  * @param originalUrl - Original image URL from Firebase Storage
  * @param originalFileName - Original filename (e.g., "observation_123.jpg")
  * @returns Expected thumbnail URL after extension processing
  */
 export function getThumbnailUrl(originalUrl: string, originalFileName: string): string {
-  const thumbnailName = originalFileName.replace(/\.(jpg|jpeg|png)$/i, '_400x400.webp');
+  const thumbnailName = originalFileName.replace(/\.(jpg|jpeg|png)$/i, '_800x800.webp');
   return originalUrl.replace(originalFileName, thumbnailName);
 }
 
