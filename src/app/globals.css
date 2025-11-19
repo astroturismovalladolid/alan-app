@@ -126,3 +126,8 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Map tiles styling for night mode */
+.night .map-tiles-night {
+  filter: sepia(100%) hue-rotate(-50deg) saturate(6) brightness(0.7);
+}

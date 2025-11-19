@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect } from 'react';
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
@@ -8,10 +10,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/context/auth-context';
+import { useLanguage } from '@/context/language-context';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
-import { Aperture } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
+import Image from 'next/image';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
@@ -25,10 +28,12 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function LoginPage() {
     const { user, loading } = useAuth();
+    const { t } = useLanguage();
     const router = useRouter();
     const [error, setError] = React.useState<string | null>(null);
     const [signingIn, setSigningIn] = React.useState(false);
     const [termsAccepted, setTermsAccepted] = React.useState(false);
+    const [minAgeConfirmed, setMinAgeConfirmed] = React.useState(false);
 
     useEffect(() => {
         if (!loading && user) {
@@ -75,11 +80,11 @@ export default function LoginPage() {
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
                     <div className="mx-auto mb-4 flex items-center gap-2">
-                        <Aperture className="h-8 w-8 text-primary" />
+                        <Image src="/icon.svg" alt="ALAN" width={32} height={32} className="h-8 w-8" />
                         <h1 className="font-headline text-3xl font-bold">ALAN</h1>
                     </div>
-                    <CardTitle className="text-2xl">Welcome Back</CardTitle>
-                    <CardDescription>Sign in to continue to the ALAN platform.</CardDescription>
+                    <CardTitle className="text-2xl">{t('loginWelcome')}</CardTitle>
+                    <CardDescription>{t('loginDescription')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {error && (
@@ -88,42 +93,71 @@ export default function LoginPage() {
                         </div>
                     )}
 
-                    <div className="flex items-start space-x-3">
-                        <Checkbox
-                            id="terms"
-                            checked={termsAccepted}
-                            onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-                        />
-                        <label
-                            htmlFor="terms"
-                            className="text-sm leading-tight text-muted-foreground cursor-pointer"
-                        >
-                            Acepto los{' '}
-                            <Link
-                                href="/terms"
-                                className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+                    <div className="space-y-3">
+                        <div className="flex items-start space-x-3">
+                            <Checkbox
+                                id="terms"
+                                checked={termsAccepted}
+                                onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+                            />
+                            <label
+                                htmlFor="terms"
+                                className="text-sm leading-tight text-muted-foreground cursor-pointer"
                             >
-                                términos y condiciones de uso
-                            </Link>
-                            {' '}de esta app
-                        </label>
+                                {t('acceptTermsCookiesPrivacy')}{' '}
+                                <Link
+                                    href="/terms"
+                                    className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+                                >
+                                    {t('termsAndConditions')}
+                                </Link>
+                                {', '}
+                                <Link
+                                    href="/cookies"
+                                    className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+                                >
+                                    {t('cookiePolicy')}
+                                </Link>
+                                {' '}{t('and')}{' '}
+                                <Link
+                                    href="/privacy"
+                                    className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+                                >
+                                    {t('privacyPolicy')}
+                                </Link>
+                            </label>
+                        </div>
+
+                        <div className="flex items-start space-x-3">
+                            <Checkbox
+                                id="minAge"
+                                checked={minAgeConfirmed}
+                                onCheckedChange={(checked) => setMinAgeConfirmed(checked === true)}
+                            />
+                            <label
+                                htmlFor="minAge"
+                                className="text-sm leading-tight text-muted-foreground cursor-pointer"
+                            >
+                                {t('minAge')}
+                            </label>
+                        </div>
                     </div>
 
                     <Button
                         onClick={handleGoogleSignIn}
                         className="w-full"
                         size="lg"
-                        disabled={signingIn || !termsAccepted}
+                        disabled={signingIn || !termsAccepted || !minAgeConfirmed}
                     >
                         {signingIn ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Iniciando sesión...
+                                {t('signingIn')}
                             </>
                         ) : (
                             <>
                                 <GoogleIcon className="mr-2" />
-                                Iniciar sesión con Google
+                                {t('signInWithGoogle')}
                             </>
                         )}
                     </Button>

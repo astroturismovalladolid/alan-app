@@ -3,18 +3,100 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read access to observations for all users
-    match /observations/{observationId} {
-      allow read: if true;
-      allow create: if request.auth != null;
+
+    // Helper functions for data validation
+    function isValidLocationPrecision() {
+      return request.resource.data.locationPrecision in ['exact', 'approximate', 'anonymous'];
     }
-    
-    // Allow users to manage their own profile
+
+    function isValidRating() {
+      return request.resource.data.rating is number
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5;
+    }
+
+    function isValidCoordinates() {
+      return request.resource.data.latitude is number
+        && request.resource.data.longitude is number
+        && request.resource.data.latitude >= -90
+        && request.resource.data.latitude <= 90
+        && request.resource.data.longitude >= -180
+        && request.resource.data.longitude <= 180;
+    }
+
+    function hasRequiredObservationFields() {
+      return request.resource.data.keys().hasAll([
+        'imageUrl', 'latitude', 'longitude', 'description',
+        'rating', 'createdAt', 'authorName', 'reports',
+        'locationPrecision', 'isAnonymous', 'ratings'
+      ]);
+    }
+
+    function isAnonymousObservation() {
+      return request.resource.data.isAnonymous == true;
+    }
+
+    function isAuthenticatedObservation() {
+      return request.resource.data.get('authorId', null) != null;
+    }
+
+    // Observations collection rules
+    match /observations/{observationId} {
+      // Anyone can read observations (public data)
+      allow read: if true;
+
+      // Create observation rules
+      allow create: if (
+        // Must be authenticated OR creating anonymous observation
+        (request.auth != null || isAnonymousObservation())
+        // Must have all required fields
+        && hasRequiredObservationFields()
+        // Must have valid location precision
+        && isValidLocationPrecision()
+        // Must have valid rating
+        && isValidRating()
+        // Must have valid coordinates
+        && isValidCoordinates()
+        // Description must be at least 10 characters
+        && request.resource.data.description.size() >= 10
+        // Anonymous observations: no authorId field
+        && (isAnonymousObservation() == (!request.resource.data.keys().hasAny(['authorId'])))
+        // Authenticated observations: authorId must match authenticated user
+        && (!isAuthenticatedObservation() || request.resource.data.authorId == request.auth.uid)
+      );
+
+      // Update observation rules
+      allow update: if (
+        // Must be authenticated
+        request.auth != null
+        // Can only update if you are the author (anonymous observations cannot be updated)
+        && resource.data.authorId == request.auth.uid
+        // Cannot change authorId, isAnonymous, or locationPrecision after creation
+        && request.resource.data.authorId == resource.data.authorId
+        && request.resource.data.isAnonymous == resource.data.isAnonymous
+        && request.resource.data.locationPrecision == resource.data.locationPrecision
+        // Validation of updated fields
+        && (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['description', 'ratings', 'reports']))
+      );
+
+      // Delete observation rules
+      allow delete: if (
+        // Must be authenticated
+        request.auth != null
+        // Can only delete if you are the author (anonymous observations cannot be deleted)
+        && resource.data.authorId == request.auth.uid
+      );
+    }
+
+    // User profiles collection rules
     match /users/{userId} {
-      // Any authenticated user can read any user profile.
-      // Any authenticated user can create their own user profile.
-      // A user can only update or delete their own profile.
-      allow read, create: if request.auth != null;
+      // Any authenticated user can read any user profile
+      allow read: if request.auth != null;
+
+      // Any authenticated user can create their own profile
+      allow create: if request.auth != null && request.auth.uid == userId;
+
+      // Users can only update or delete their own profile
       allow update, delete: if request.auth != null && request.auth.uid == userId;
     }
   }

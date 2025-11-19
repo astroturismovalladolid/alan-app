@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Star, MapPin, Flag, Loader2, Trash2 } from 'lucide-react';
+import { Star, MapPin, Flag, Loader2, Trash2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/context/auth-context';
-import { addRating, reportObservation, deleteObservation, type Observation } from '@/lib/observations-fetch';
+import { useLanguage } from '@/context/language-context';
+import { addRating, reportObservation, unreportObservation, deleteObservation, type Observation } from '@/lib/observations-fetch';
 import { cn } from '@/lib/utils';
 
 interface ObservationPopupProps {
@@ -18,6 +19,7 @@ interface ObservationPopupProps {
 
 export function ObservationPopup({ observation, onRatingAdded, onReported, onDeleted, authorName }: ObservationPopupProps) {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   const [showRatingForm, setShowRatingForm] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -33,15 +35,71 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
   const averageRating = ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length;
   const userHasRated = user?.uid ? observation.ratings[user.uid] !== undefined : false;
   const userRating = user?.uid ? observation.ratings[user.uid] : undefined;
+  const userHasReported = user?.uid ? observation.reports.some(report => report.userId === user.uid) : false;
+
+  // Helper function to format timestamp
+  const formatTimestamp = (timestamp: any): string => {
+    if (!timestamp) return t('unknownDate');
+
+    let date: Date;
+
+    // Handle Firestore Timestamp
+    if (timestamp?.toDate) {
+      date = timestamp.toDate();
+    } else if (timestamp?.seconds) {
+      date = new Date(timestamp.seconds * 1000);
+    } else if (timestamp instanceof Date) {
+      date = timestamp;
+    } else {
+      return t('unknownDate');
+    }
+
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    // Relative time for recent observations
+    if (diffMins < 1) return t('justNow');
+    if (diffMins < 60) {
+      const unitWord = diffMins === 1 ? t('minute') : t('minutes');
+      return language === 'es' || language === 'fr'
+        ? `${t('ago')} ${diffMins} ${unitWord}`
+        : `${diffMins} ${unitWord} ${t('ago')}`;
+    }
+    if (diffHours < 24) {
+      const unitWord = diffHours === 1 ? t('hour') : t('hours');
+      return language === 'es' || language === 'fr'
+        ? `${t('ago')} ${diffHours} ${unitWord}`
+        : `${diffHours} ${unitWord} ${t('ago')}`;
+    }
+    if (diffDays < 7) {
+      const unitWord = diffDays === 1 ? t('day') : t('days');
+      return language === 'es' || language === 'fr'
+        ? `${t('ago')} ${diffDays} ${unitWord}`
+        : `${diffDays} ${unitWord} ${t('ago')}`;
+    }
+
+    // Absolute date for older observations
+    const locale = language === 'es' ? 'es-ES' : language === 'fr' ? 'fr-FR' : 'en-US';
+    return date.toLocaleDateString(locale, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   const handleRatingSubmit = async () => {
     if (newRating === 0) {
-      setError('Please select a rating');
+      setError(t('pleaseSelectRating'));
       return;
     }
 
     if (!user) {
-      setError('You must be logged in to rate');
+      setError(t('mustBeLoggedInToRate'));
       return;
     }
 
@@ -52,12 +110,12 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
     const result = await addRating(observation.id, user.uid, newRating);
 
     if (result.success) {
-      setSuccess(userHasRated ? 'Rating updated successfully!' : 'Rating added successfully!');
+      setSuccess(userHasRated ? t('ratingUpdated') : t('ratingAdded'));
       setShowRatingForm(false);
       setNewRating(0);
       onRatingAdded();
     } else {
-      setError(result.error || 'Failed to add rating');
+      setError(result.error || t('failedToAddRating'));
     }
 
     setIsSubmitting(false);
@@ -65,12 +123,12 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
 
   const handleReportSubmit = async () => {
     if (!reportReason.trim()) {
-      setError('Please provide a reason for reporting');
+      setError(t('pleaseProvideReason'));
       return;
     }
 
     if (!user) {
-      setError('You must be logged in to report');
+      setError(t('mustBeLoggedInToReport'));
       return;
     }
 
@@ -81,12 +139,34 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
     const result = await reportObservation(observation.id, user.uid, reportReason);
 
     if (result.success) {
-      setSuccess('Report submitted successfully');
+      setSuccess(t('reportSubmitted'));
       setShowReportForm(false);
       setReportReason('');
       onReported();
     } else {
-      setError(result.error || 'Failed to submit report');
+      setError(result.error || t('failedToReport'));
+    }
+
+    setIsSubmitting(false);
+  };
+
+  const handleUnreport = async () => {
+    if (!user) {
+      setError(t('mustBeLoggedInToReport'));
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+    setSuccess(null);
+
+    const result = await unreportObservation(observation.id, user.uid);
+
+    if (result.success) {
+      setSuccess(t('reportRemoved'));
+      onReported();
+    } else {
+      setError(result.error || t('failedToUnreport'));
     }
 
     setIsSubmitting(false);
@@ -94,7 +174,7 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
 
   const handleDelete = async () => {
     if (!user || !isAuthor) {
-      setError('You must be the author to delete this observation');
+      setError(t('mustBeAuthorToDelete'));
       return;
     }
 
@@ -105,12 +185,12 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
     const result = await deleteObservation(observation.id, observation.imageUrl);
 
     if (result.success) {
-      setSuccess('Observation deleted successfully');
+      setSuccess(t('observationDeleted'));
       setTimeout(() => {
         onDeleted();
       }, 1000);
     } else {
-      setError(result.error || 'Failed to delete observation');
+      setError(result.error || t('failedToDelete'));
       setShowDeleteConfirm(false);
     }
 
@@ -118,13 +198,14 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
   };
 
   return (
-    <div className="w-full max-w-sm">
+    <div className="w-full">
       {/* Image */}
-      <div className="relative w-full h-40 bg-muted rounded-t-lg overflow-hidden flex items-center justify-center">
+      <div className="relative w-full h-64 sm:h-80 bg-muted rounded-t-lg overflow-hidden flex items-center justify-center">
         <img
-          src={observation.imageUrl}
+          src={observation.thumbnailUrl || observation.imageUrl}
           alt="Observation"
           className="max-w-full max-h-full object-contain"
+          loading="lazy"
         />
       </div>
 
@@ -146,19 +227,24 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
             ))}
           </div>
           <span className="text-sm text-muted-foreground">
-            {averageRating.toFixed(1)} ({ratingValues.length} {ratingValues.length === 1 ? 'rating' : 'ratings'})
+            {averageRating.toFixed(1)} ({ratingValues.length} {ratingValues.length === 1 ? t('rating') : t('ratings')})
           </span>
         </div>
 
         {/* Description */}
-        <p className="text-sm text-foreground line-clamp-3">{observation.description}</p>
+        <p className="text-sm text-foreground">{observation.description}</p>
 
         {/* Author */}
-        {authorName && (
-          <div className="text-xs text-muted-foreground">
-            By {authorName}
-          </div>
-        )}
+        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <span className="text-muted-foreground">{t('by')}</span>
+          <span>{authorName || observation.authorName || 'Anonymous'}</span>
+        </div>
+
+        {/* Creation Date */}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Clock className="h-4 w-4" />
+          <span>{formatTimestamp(observation.createdAt)}</span>
+        </div>
 
         {/* Location */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -172,7 +258,7 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
         {observation.reports.length > 0 && (
           <div className="text-xs text-orange-600 flex items-center gap-1">
             <Flag className="h-3 w-3" />
-            <span>{observation.reports.length} report{observation.reports.length > 1 ? 's' : ''}</span>
+            <span>{observation.reports.length} {observation.reports.length === 1 ? t('report') : t('reports')}</span>
           </div>
         )}
 
@@ -183,17 +269,17 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
           </div>
         )}
         {success && (
-          <div className="text-xs text-green-600 bg-green-50 p-2 rounded">
+          <div className="text-xs text-green-600 bg-green-50 dark:bg-green-950 night:bg-green-950 p-2 rounded">
             {success}
           </div>
         )}
 
-        {/* Actions (only for non-authors) */}
+        {/* Rating actions (only for non-authors) */}
         {!isAuthor && user && (
           <div className="space-y-2 pt-2 border-t">
             {userHasRated && !showRatingForm && !showReportForm && (
               <div className="text-xs text-muted-foreground">
-                Your rating: {userRating} ⭐
+                {t('yourRating')} {userRating} ⭐
               </div>
             )}
             {!showRatingForm && !showReportForm && (
@@ -208,24 +294,38 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
                   }}
                 >
                   <Star className="h-4 w-4 mr-1" />
-                  {userHasRated ? 'Change Rating' : 'Rate'}
+                  {userHasRated ? t('changeRating') : t('rate')}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => setShowReportForm(true)}
-                >
-                  <Flag className="h-4 w-4 mr-1" />
-                  Report
-                </Button>
+                {!userHasReported ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setShowReportForm(true)}
+                  >
+                    <Flag className="h-4 w-4 mr-1" />
+                    {t('reportBtn')}
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={handleUnreport}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+                    <Flag className="h-4 w-4 mr-1" />
+                    {t('unreportBtn')}
+                  </Button>
+                )}
               </div>
             )}
 
             {/* Rating Form */}
             {showRatingForm && (
               <div className="space-y-3">
-                <div className="text-sm font-medium">Rate this observation</div>
+                <div className="text-sm font-medium">{t('rateThisObservation')}</div>
                 <div className="flex justify-center gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
@@ -252,7 +352,7 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
                       setError(null);
                     }}
                   >
-                    Cancel
+                    {t('cancel')}
                   </Button>
                   <Button
                     size="sm"
@@ -261,7 +361,7 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
                     disabled={isSubmitting}
                   >
                     {isSubmitting && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
-                    Submit Rating
+                    {t('submitRating')}
                   </Button>
                 </div>
               </div>
@@ -270,9 +370,9 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
             {/* Report Form */}
             {showReportForm && (
               <div className="space-y-3">
-                <div className="text-sm font-medium">Report this observation</div>
+                <div className="text-sm font-medium">{t('reportThisObservation')}</div>
                 <Textarea
-                  placeholder="Please describe why you're reporting this observation..."
+                  placeholder={t('reportPlaceholder')}
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
                   rows={3}
@@ -288,7 +388,7 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
                       setError(null);
                     }}
                   >
-                    Cancel
+                    {t('cancel')}
                   </Button>
                   <Button
                     size="sm"
@@ -298,7 +398,7 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
                     disabled={isSubmitting}
                   >
                     {isSubmitting && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
-                    Submit Report
+                    {t('submitReport')}
                   </Button>
                 </div>
               </div>
@@ -306,13 +406,13 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
           </div>
         )}
 
-        {/* Author actions */}
+        {/* Author delete action */}
         {isAuthor && (
           <div className="space-y-2 pt-2 border-t">
             {!showDeleteConfirm ? (
               <>
                 <div className="text-xs text-muted-foreground italic">
-                  This is your observation
+                  {t('thisIsYourObservation')}
                 </div>
                 <Button
                   size="sm"
@@ -322,16 +422,16 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
                   disabled={isSubmitting}
                 >
                   <Trash2 className="h-4 w-4 mr-1" />
-                  Delete Observation
+                  {t('deleteObservation')}
                 </Button>
               </>
             ) : (
               <div className="space-y-3">
                 <div className="text-sm font-medium text-destructive">
-                  Are you sure you want to delete this observation?
+                  {t('confirmDelete')}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  This action cannot be undone. The observation and its image will be permanently deleted.
+                  {t('deleteWarning')}
                 </p>
                 <div className="flex gap-2">
                   <Button
@@ -340,7 +440,7 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
                     onClick={() => setShowDeleteConfirm(false)}
                     disabled={isSubmitting}
                   >
-                    Cancel
+                    {t('cancel')}
                   </Button>
                   <Button
                     size="sm"
@@ -350,7 +450,7 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
                     disabled={isSubmitting}
                   >
                     {isSubmitting && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
-                    Yes, Delete
+                    {t('yesDelete')}
                   </Button>
                 </div>
               </div>
