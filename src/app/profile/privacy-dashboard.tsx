@@ -75,20 +75,43 @@ export function PrivacyDashboard() {
     if (!user) return;
 
     setIsDeleting(true);
+
+    // Show immediate feedback that deletion has started
+    toast({
+      title: t('deletingObservations') || 'Deleting observations...',
+      description: t('pleaseWait') || 'Please wait while we delete your observations.',
+    });
+
     try {
       // Query all observations by this user
       const q = query(
         collection(db, 'observations'),
         where('authorId', '==', user.uid)
       );
-      const querySnapshot = await getDocs(q);
+
+      // Set a timeout to prevent indefinite hanging
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Operation timed out after 30 seconds')), 30000)
+      );
+
+      const queryPromise = getDocs(q);
+      const querySnapshot = await Promise.race([queryPromise, timeoutPromise]) as any;
+
+      if (querySnapshot.size === 0) {
+        toast({
+          title: t('noObservations') || 'No observations found',
+          description: t('noObservationsToDelete') || 'There are no observations to delete.',
+        });
+        setIsDeleting(false);
+        return;
+      }
 
       // Delete in batches (Firestore limit: 500 operations per batch)
       const batches = [];
       let currentBatch = writeBatch(db);
       let operationCount = 0;
 
-      querySnapshot.docs.forEach((document) => {
+      querySnapshot.docs.forEach((document: any) => {
         currentBatch.delete(doc(db, 'observations', document.id));
         operationCount++;
 
@@ -105,8 +128,17 @@ export function PrivacyDashboard() {
         batches.push(currentBatch);
       }
 
-      // Commit all batches
-      await Promise.all(batches.map(batch => batch.commit()));
+      // Commit all batches sequentially to avoid overloading
+      // This prevents UI blocking and provides better error handling
+      for (let i = 0; i < batches.length; i++) {
+        try {
+          await batches[i].commit();
+          console.log(`Batch ${i + 1}/${batches.length} deleted successfully`);
+        } catch (batchError) {
+          console.error(`Error deleting batch ${i + 1}:`, batchError);
+          throw new Error(`Failed to delete batch ${i + 1} of ${batches.length}`);
+        }
+      }
 
       toast({
         title: t('observationsDeleted'),
