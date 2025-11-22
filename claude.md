@@ -1,5 +1,11 @@
 # ALAN App - Code Analysis, Bug Fixes, Testing, and Deployment
 
+## Claude Code Instructions
+
+**Context7 Usage Policy**: Always use Context7 MCP tools when you need code generation, setup or configuration steps, or library/API documentation. This means you should automatically use the Context7 MCP tools (`mcp__context7__resolve-library-id` and `mcp__context7__get-library-docs`) to resolve library IDs and get library documentation without me having to explicitly ask.
+
+---
+
 ## Session Summary
 
 This session focused on analyzing the ALAN (Anti-Light-Pollution Action Network) codebase, identifying and fixing critical bugs, implementing a comprehensive test suite, and preparing the application for production deployment.

@@ -3,7 +3,8 @@
 import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { fetchObservations, type Observation } from '@/lib/observations-fetch';
+import type { Observation } from '@/lib/observations-fetch';
+import { useObservations } from '@/hooks/use-observations';
 import { ObservationPopup } from './observation-popup';
 import { useLanguage } from '@/context/language-context';
 import {
@@ -60,19 +61,17 @@ const MapComponent = forwardRef<MapRef>((props, ref) => {
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const markersRef = useRef<L.CircleMarker[]>([]);
   const [isClient, setIsClient] = useState(false);
-  const [observations, setObservations] = useState<Observation[]>([]);
   const [selectedObservation, setSelectedObservation] = useState<Observation | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Function to reload observations from Firestore
-  const reloadObservations = async () => {
-    const obs = await fetchObservations();
-    setObservations(obs);
-  };
+  // Use React Query to fetch observations with caching
+  const { data: observations = [], refetch } = useObservations();
 
   // Expose reloadObservations method to parent component
   useImperativeHandle(ref, () => ({
-    reloadObservations,
+    reloadObservations: async () => {
+      await refetch();
+    },
   }));
 
   useEffect(() => {
@@ -161,16 +160,9 @@ const MapComponent = forwardRef<MapRef>((props, ref) => {
     };
   }, [isClient]);
 
-  // Load observations
-  useEffect(() => {
-    if (isClient) {
-      reloadObservations();
-      // Reload every 30 seconds to get new observations
-      const interval = setInterval(reloadObservations, 30000);
-      return () => clearInterval(interval);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isClient]);
+  // React Query handles fetching automatically
+  // No need for manual interval polling - React Query will refetch on window focus
+  // and use cached data otherwise
 
   // Add markers for observations
   useEffect(() => {
@@ -218,32 +210,34 @@ const MapComponent = forwardRef<MapRef>((props, ref) => {
               observation={selectedObservation}
               authorName={selectedObservation.authorName}
               onRatingAdded={() => {
-                // Reload observations after rating is added
-                fetchObservations().then((newObservations) => {
-                  setObservations(newObservations);
+                // React Query will automatically refetch and update
+                refetch().then(({ data }) => {
                   // Update the selected observation with fresh data
-                  const updated = newObservations.find(obs => obs.id === selectedObservation.id);
-                  if (updated) {
-                    setSelectedObservation(updated);
+                  if (data) {
+                    const updated = data.find(obs => obs.id === selectedObservation.id);
+                    if (updated) {
+                      setSelectedObservation(updated);
+                    }
                   }
                 });
               }}
               onReported={() => {
-                // Reload observations after report is submitted
-                fetchObservations().then((newObservations) => {
-                  setObservations(newObservations);
+                // React Query will automatically refetch and update
+                refetch().then(({ data }) => {
                   // Update the selected observation with fresh data
-                  const updated = newObservations.find(obs => obs.id === selectedObservation.id);
-                  if (updated) {
-                    setSelectedObservation(updated);
+                  if (data) {
+                    const updated = data.find(obs => obs.id === selectedObservation.id);
+                    if (updated) {
+                      setSelectedObservation(updated);
+                    }
                   }
                 });
               }}
               onDeleted={() => {
-                // Close modal and reload observations after deletion
+                // Close modal and refetch observations after deletion
                 setIsModalOpen(false);
                 setSelectedObservation(null);
-                fetchObservations().then(setObservations);
+                refetch();
               }}
             />
           )}

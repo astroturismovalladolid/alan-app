@@ -7,6 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import { useEffect } from 'react';
 import { LanguageProvider } from '@/context/language-context';
 import { AuthProvider } from '@/context/auth-context';
+import { QueryProvider } from '@/context/query-provider';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 
 
@@ -52,13 +53,15 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body>
-        <AuthProvider>
-          <LanguageProvider>
-            {children}
-            <Toaster />
-            <FirebaseErrorListener />
-          </LanguageProvider>
-        </AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <LanguageProvider>
+              {children}
+              <Toaster />
+              <FirebaseErrorListener />
+            </LanguageProvider>
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );
