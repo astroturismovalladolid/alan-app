@@ -166,22 +166,22 @@ export default function Home() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="absolute bottom-8 left-8 z-[1000]">
+      <div className="ios-bottom-button fixed bottom-11 z-[1000]" style={{ left: 'max(2rem, calc(2rem + env(safe-area-inset-left)))' }}>
         <Button
           size="lg"
-          className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
+          className="rounded-full h-24 w-24 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
           onClick={() => setInfoModalOpen(true)}
         >
-          <FontAwesomeIcon icon={faQuestion} className="w-24 h-24" />
+          <FontAwesomeIcon icon={faQuestion} className="w-12 h-12" />
         </Button>
       </div>
-      <div className="absolute bottom-8 right-8 z-[1000]">
+      <div className="ios-bottom-button fixed bottom-11 z-[1000]" style={{ right: 'max(2rem, calc(2rem + env(safe-area-inset-right)))' }}>
         <Button
           size="lg"
-          className="rounded-full h-16 w-16 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
+          className="rounded-full h-24 w-24 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
           onClick={() => setUploadModalOpen(true)}
         >
-          <FontAwesomeIcon icon={faCamera} className="w-24 h-24" />
+          <FontAwesomeIcon icon={faCamera} className="w-12 h-12" />
         </Button>
       </div>
 

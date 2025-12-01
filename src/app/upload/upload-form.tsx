@@ -29,6 +29,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import type { LocationPrecision } from '@/lib/types';
+import { useQueryClient } from '@tanstack/react-query';
 
 const formSchema = z.object({
   latitude: z.number(),
@@ -83,6 +84,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -206,6 +208,9 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       });
 
       if (result.success) {
+        // Invalidate observations cache to force immediate refetch
+        await queryClient.invalidateQueries({ queryKey: ['observations'] });
+
         toast({
           title: t('uploadSuccessful'),
           description: t('observationSubmitted'),
