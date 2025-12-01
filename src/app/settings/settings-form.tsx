@@ -12,6 +12,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/language-context';
+import { useAuth } from '@/context/auth-context';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 const settingsFormSchema = z.object({
   language: z.string(),
@@ -27,6 +30,7 @@ interface SettingsFormProps {
 export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
   const { toast } = useToast();
   const { language, setLanguage, t } = useLanguage();
+  const { user } = useAuth();
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
@@ -38,26 +42,67 @@ export function SettingsForm({ onUpdateSuccess }: SettingsFormProps) {
 
   const theme = form.watch('theme');
 
+  // Load preferences from Firestore when component mounts
   useEffect(() => {
-    const currentTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'night' | null;
-    if (currentTheme) {
-        form.setValue('theme', currentTheme);
-    }
-  }, [form]);
-  
+    const loadPreferences = async () => {
+      if (user) {
+        try {
+          const userRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userRef);
+
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const savedTheme = userData.theme as 'light' | 'dark' | 'night' | undefined;
+
+            if (savedTheme) {
+              form.setValue('theme', savedTheme);
+            }
+          }
+        } catch (error) {
+          console.warn('Failed to load theme preference from Firestore:', error);
+          // Fallback to localStorage
+          const currentTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'night' | null;
+          if (currentTheme) {
+            form.setValue('theme', currentTheme);
+          }
+        }
+      } else {
+        // User not logged in, use localStorage
+        const currentTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'night' | null;
+        if (currentTheme) {
+          form.setValue('theme', currentTheme);
+        }
+      }
+    };
+
+    loadPreferences();
+  }, [form, user]);
+
   useEffect(() => {
     form.setValue('language', language);
   }, [language, form]);
 
+  // Apply theme changes immediately to DOM
   useEffect(() => {
     document.documentElement.classList.remove('light', 'dark', 'night');
     document.documentElement.classList.add(theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  async function onSubmit(data: SettingsFormValues) {
+    // Update language (this already syncs to Firestore via language context)
+    await setLanguage(data.language as 'en' | 'es' | 'fr');
 
-  function onSubmit(data: SettingsFormValues) {
-    setLanguage(data.language as 'en' | 'es' | 'fr');
+    // Save theme to Firestore if user is logged in
+    if (user) {
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, { theme: data.theme }, { merge: true });
+      } catch (error) {
+        console.warn('Failed to save theme preference to Firestore:', error);
+      }
+    }
+
     toast({
       title: t('settingsSaved'),
       description: t('yourNewSettingsHaveBeenApplied'),
