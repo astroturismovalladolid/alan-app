@@ -51,6 +51,7 @@ function getCircleMarkerOptions(rating: number): L.CircleMarkerOptions {
     weight: 1,
     opacity: 1,
     fillOpacity: 0.8,
+    pane: 'markerPane', // Ensure markers are in the correct pane
   };
 }
 
@@ -65,7 +66,17 @@ const MapComponent = forwardRef<MapRef>((props, ref) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Use React Query to fetch observations with caching
-  const { data: observations = [], refetch } = useObservations();
+  const { data: observations = [], refetch, isLoading, error } = useObservations();
+
+  // Log observations data for debugging
+  useEffect(() => {
+    console.log('Observations data updated:', {
+      count: observations.length,
+      isLoading,
+      error: error?.message,
+      observations: observations.slice(0, 3) // Log first 3 for debugging
+    });
+  }, [observations, isLoading, error]);
 
   // Expose reloadObservations method to parent component
   useImperativeHandle(ref, () => ({
@@ -117,15 +128,23 @@ const MapComponent = forwardRef<MapRef>((props, ref) => {
       tileLayer.addTo(map);
       tileLayerRef.current = tileLayer;
 
-      // Get user's current location
+      // Get user's current location with iOS-specific options
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
+            console.log('Geolocation success:', latitude, longitude);
             map.setView([latitude, longitude], 13);
           },
-          () => {
+          (error) => {
+            console.error('Geolocation error:', error.code, error.message);
             console.log("Unable to retrieve your location. Defaulting to London.");
+            // Stay at default London coordinates
+          },
+          {
+            enableHighAccuracy: false, // iOS Safari works better with false
+            timeout: 10000,
+            maximumAge: 300000, // 5 minutes cache
           }
         );
       }
@@ -166,14 +185,27 @@ const MapComponent = forwardRef<MapRef>((props, ref) => {
 
   // Add markers for observations
   useEffect(() => {
-    if (!mapRef.current || observations.length === 0) return;
+    console.log('Map markers effect - observations count:', observations.length);
+    console.log('Map ref exists:', !!mapRef.current);
+
+    if (!mapRef.current) {
+      console.warn('Map ref not ready');
+      return;
+    }
+
+    if (observations.length === 0) {
+      console.warn('No observations to display');
+      return;
+    }
 
     // Clear existing markers
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
 
     // Add new circle markers
-    observations.forEach((observation) => {
+    observations.forEach((observation, index) => {
+      console.log(`Adding marker ${index}:`, observation.latitude, observation.longitude, 'rating:', observation.rating);
+
       const circleMarker = L.circleMarker(
         [observation.latitude, observation.longitude],
         getCircleMarkerOptions(observation.rating)
@@ -187,6 +219,8 @@ const MapComponent = forwardRef<MapRef>((props, ref) => {
 
       markersRef.current.push(circleMarker);
     });
+
+    console.log('Total markers added:', markersRef.current.length);
 
     return () => {
       markersRef.current.forEach(marker => marker.remove());
