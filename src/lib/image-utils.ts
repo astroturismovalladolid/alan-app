@@ -20,21 +20,6 @@ export function dataUrlToBlob(dataUrl: string): Blob {
 }
 
 /**
- * Generate thumbnail URL from original image URL
- * This assumes the Firebase "Resize Images" extension is installed
- * and configured to create thumbnails with the suffix "_800x800.webp"
- * The extension preserves aspect ratio, so this is a max dimension, not exact size
- *
- * @param originalUrl - Original image URL from Firebase Storage
- * @param originalFileName - Original filename (e.g., "observation_123.jpg")
- * @returns Expected thumbnail URL after extension processing
- */
-export function getThumbnailUrl(originalUrl: string, originalFileName: string): string {
-  const thumbnailName = originalFileName.replace(/\.(jpg|jpeg|png)$/i, '_800x800.webp');
-  return originalUrl.replace(originalFileName, thumbnailName);
-}
-
-/**
  * Get optimized cache control headers for Firebase Storage uploads
  * These headers ensure maximum caching efficiency and reduce egress costs
  *
@@ -45,16 +30,4 @@ export function getImageMetadata(contentType: string = 'image/jpeg') {
     contentType,
     cacheControl: 'public, max-age=31536000, immutable', // Cache for 1 year
   };
-}
-
-/**
- * Get the display URL for an observation image
- * Prefers thumbnail for bandwidth savings, falls back to original
- *
- * @param thumbnailUrl - Optimized thumbnail URL (if available)
- * @param imageUrl - Original full-resolution URL (fallback)
- * @returns URL to display in the UI
- */
-export function getDisplayImageUrl(thumbnailUrl: string | undefined, imageUrl: string): string {
-  return thumbnailUrl || imageUrl;
 }
