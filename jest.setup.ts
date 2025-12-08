@@ -56,5 +56,6 @@ jest.mock('firebase/storage', () => ({
   getStorage: jest.fn(() => ({})),
   ref: jest.fn(),
   uploadString: jest.fn(),
+  uploadBytes: jest.fn(),
   getDownloadURL: jest.fn(),
 }));

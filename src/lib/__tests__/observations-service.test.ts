@@ -1,13 +1,19 @@
 import { addObservation } from '../observations-service';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { uploadString, getDownloadURL, ref } from 'firebase/storage';
+import { uploadBytes, getDownloadURL, ref } from 'firebase/storage';
 
 // Mock Firebase functions
 jest.mock('firebase/firestore');
 jest.mock('firebase/storage');
 
+// Mock image-utils module
+jest.mock('@/lib/image-utils', () => ({
+  dataUrlToBlob: jest.fn(() => new Blob(['test'], { type: 'image/jpeg' })),
+  getImageMetadata: jest.fn(() => ({ contentType: 'image/jpeg', cacheControl: 'public, max-age=31536000' })),
+}));
+
 const mockAddDoc = addDoc as jest.MockedFunction<typeof addDoc>;
-const mockUploadString = uploadString as jest.MockedFunction<typeof uploadString>;
+const mockUploadBytes = uploadBytes as jest.MockedFunction<typeof uploadBytes>;
 const mockGetDownloadURL = getDownloadURL as jest.MockedFunction<typeof getDownloadURL>;
 const mockRef = ref as jest.MockedFunction<typeof ref>;
 
@@ -62,21 +68,21 @@ describe('Observations Service', () => {
     it('should successfully add valid observation', async () => {
       // Mock successful Firebase operations
       mockRef.mockReturnValue({} as any);
-      mockUploadString.mockResolvedValue({ ref: {} } as any);
+      mockUploadBytes.mockResolvedValue({ ref: {} } as any);
       mockGetDownloadURL.mockResolvedValue('https://example.com/image.jpg');
       mockAddDoc.mockResolvedValue({ id: 'test-doc-id' } as any);
 
       const result = await addObservation(validObservation);
 
       expect(result).toEqual({ success: true });
-      expect(mockUploadString).toHaveBeenCalled();
+      expect(mockUploadBytes).toHaveBeenCalled();
       expect(mockGetDownloadURL).toHaveBeenCalled();
       expect(mockAddDoc).toHaveBeenCalled();
     });
 
     it('should handle storage upload errors gracefully', async () => {
       mockRef.mockReturnValue({} as any);
-      mockUploadString.mockRejectedValue(new Error('Upload failed'));
+      mockUploadBytes.mockRejectedValue(new Error('Upload failed'));
 
       const result = await addObservation(validObservation);
 
@@ -88,7 +94,7 @@ describe('Observations Service', () => {
 
     it('should handle Firestore errors gracefully', async () => {
       mockRef.mockReturnValue({} as any);
-      mockUploadString.mockResolvedValue({ ref: {} } as any);
+      mockUploadBytes.mockResolvedValue({ ref: {} } as any);
       mockGetDownloadURL.mockResolvedValue('https://example.com/image.jpg');
       mockAddDoc.mockRejectedValue(new Error('Firestore error'));
 
@@ -112,7 +118,7 @@ describe('Observations Service', () => {
       };
 
       mockRef.mockReturnValue({} as any);
-      mockUploadString.mockResolvedValue({ ref: {} } as any);
+      mockUploadBytes.mockResolvedValue({ ref: {} } as any);
       mockGetDownloadURL.mockResolvedValue('https://example.com/image.jpg');
       mockAddDoc.mockResolvedValue({ id: 'test-doc-id' } as any);
 
@@ -141,7 +147,7 @@ describe('Observations Service', () => {
       };
 
       mockRef.mockReturnValue({} as any);
-      mockUploadString.mockResolvedValue({ ref: {} } as any);
+      mockUploadBytes.mockResolvedValue({ ref: {} } as any);
       mockGetDownloadURL.mockResolvedValue('https://example.com/image.jpg');
 
       const result = await addObservation(observationWithoutAuthor);
@@ -177,7 +183,7 @@ describe('Observations Service', () => {
       };
 
       mockRef.mockReturnValue({} as any);
-      mockUploadString.mockResolvedValue({ ref: {} } as any);
+      mockUploadBytes.mockResolvedValue({ ref: {} } as any);
       mockGetDownloadURL.mockResolvedValue('https://example.com/image.jpg');
       mockAddDoc.mockResolvedValue({ id: 'test-doc-id' } as any);
 
@@ -198,7 +204,7 @@ describe('Observations Service', () => {
       };
 
       mockRef.mockReturnValue({} as any);
-      mockUploadString.mockResolvedValue({ ref: {} } as any);
+      mockUploadBytes.mockResolvedValue({ ref: {} } as any);
       mockGetDownloadURL.mockResolvedValue('https://example.com/image.jpg');
       mockAddDoc.mockResolvedValue({ id: 'test-doc-id' } as any);
 
@@ -221,7 +227,7 @@ describe('Observations Service', () => {
       };
 
       mockRef.mockReturnValue({} as any);
-      mockUploadString.mockResolvedValue({ ref: {} } as any);
+      mockUploadBytes.mockResolvedValue({ ref: {} } as any);
       mockGetDownloadURL.mockResolvedValue('https://example.com/image.jpg');
       mockAddDoc.mockResolvedValue({ id: 'test-doc-id' } as any);
 
@@ -245,7 +251,7 @@ describe('Observations Service', () => {
       };
 
       mockRef.mockReturnValue({} as any);
-      mockUploadString.mockResolvedValue({ ref: {} } as any);
+      mockUploadBytes.mockResolvedValue({ ref: {} } as any);
       mockGetDownloadURL.mockResolvedValue('https://example.com/image.jpg');
       mockAddDoc.mockResolvedValue({ id: 'test-doc-id' } as any);
 
