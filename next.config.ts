@@ -50,6 +50,51 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Aggressive caching headers to reduce Firebase costs
+  async headers() {
+    return [
+      // Cache static assets (JS, CSS, fonts, images) for 1 year
+      {
+        source: '/(.*)\\.(js|css|woff|woff2|ttf|otf|eot|svg|png|jpg|jpeg|gif|webp|ico)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Cache Next.js static chunks for 1 year
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Cache public folder assets for 1 year
+      {
+        source: '/icon-:size(.*).png',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Cache API responses for 5 minutes with stale-while-revalidate
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=300, stale-while-revalidate=600',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

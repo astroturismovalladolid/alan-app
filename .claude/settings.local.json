@@ -9,7 +9,16 @@
       "Bash(npm run test:*)",
       "Bash(npm run build:*)",
       "Bash(npx next build:*)",
-      "Bash(npm run typecheck:*)"
+      "Bash(npm run typecheck:*)",
+      "Bash(npm install:*)",
+      "Bash(git stash:*)",
+      "Bash(npx tsc:*)",
+      "mcp__github__get_me",
+      "mcp__github__list_pull_requests",
+      "Bash(gh pr list:*)",
+      "Bash(curl:*)",
+      "Bash(set NODE_OPTIONS=--max-old-space-size=4096)",
+      "Bash(timeout 15 npm run dev)"
     ],
     "deny": [],
     "ask": []
