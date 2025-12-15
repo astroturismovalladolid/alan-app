@@ -208,7 +208,10 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       });
 
       if (result.success) {
-        // Invalidate observations cache to force immediate refetch
+        // Trigger server-side cache revalidation (ISR)
+        await fetch('/api/observations/revalidate', { method: 'POST' });
+
+        // Invalidate React Query cache to force immediate refetch
         await queryClient.invalidateQueries({ queryKey: ['observations'] });
 
         toast({

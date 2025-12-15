@@ -5,6 +5,18 @@ import type { Observation } from '@/lib/observations-fetch';
 import { addRating, reportObservation, unreportObservation, deleteObservation } from '@/lib/observations-fetch';
 
 /**
+ * Revalidates the server-side ISR cache for observations
+ * This ensures fresh data is served after mutations
+ */
+async function revalidateServerCache(): Promise<void> {
+  try {
+    await fetch('/api/observations/revalidate', { method: 'POST' });
+  } catch (error) {
+    console.warn('Failed to revalidate server cache:', error);
+  }
+}
+
+/**
  * Fetch observations from the API route (with ISR caching)
  *
  * This hook provides:
@@ -109,7 +121,8 @@ export function useAddRating() {
       }
     },
     // Always refetch after error or success
-    onSettled: () => {
+    onSettled: async () => {
+      await revalidateServerCache();
       queryClient.invalidateQueries({ queryKey: ['observations'] });
     },
   });
@@ -131,7 +144,8 @@ export function useReportObservation() {
       userId: string;
       reason: string;
     }) => reportObservation(observationId, userId, reason),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await revalidateServerCache();
       queryClient.invalidateQueries({ queryKey: ['observations'] });
     },
   });
@@ -146,7 +160,8 @@ export function useUnreportObservation() {
   return useMutation({
     mutationFn: ({ observationId, userId }: { observationId: string; userId: string }) =>
       unreportObservation(observationId, userId),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await revalidateServerCache();
       queryClient.invalidateQueries({ queryKey: ['observations'] });
     },
   });
@@ -161,7 +176,8 @@ export function useDeleteObservation() {
   return useMutation({
     mutationFn: ({ observationId, imageUrl }: { observationId: string; imageUrl: string }) =>
       deleteObservation(observationId, imageUrl),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await revalidateServerCache();
       queryClient.invalidateQueries({ queryKey: ['observations'] });
     },
   });
