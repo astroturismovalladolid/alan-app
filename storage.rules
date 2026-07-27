@@ -1,0 +1,38 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Light-pollution observation photos (observations/{imageId}).
+    // The app supports fully anonymous observations (see isAnonymous in
+    // firestore.rules), so uploads have to work without Firebase Auth.
+    // Storage rules can't see the paired Firestore write, so the only
+    // practical constraint here is shape-based: it must actually be an
+    // image and stay under a sane size (the client already resizes to
+    // 1200px/JPEG 85%, so a legitimate upload is nowhere near this cap).
+    match /observations/{imageId} {
+      allow read: if true; // observations are public data (see firestore.rules)
+      allow write: if request.resource.size < 8 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      // Deleting requires sign-in; the corresponding Firestore document
+      // delete (author-only, see firestore.rules) is the real authorization
+      // check for "is this actually your observation".
+      allow delete: if request.auth != null;
+    }
+
+    // User profile avatars, one file per uid (avatars/{userId}).
+    match /avatars/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.size < 4 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Deny everything else by default.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
