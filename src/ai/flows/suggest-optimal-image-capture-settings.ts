@@ -10,6 +10,8 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {headers} from 'next/headers';
+import {checkRateLimit, getClientIp} from '@/lib/rate-limit';
 
 const SuggestOptimalImageCaptureSettingsInputSchema = z.object({
   photoDataUri: z
@@ -45,6 +47,10 @@ export type SuggestOptimalImageCaptureSettingsOutput = z.infer<
 export async function suggestOptimalImageCaptureSettings(
   input: SuggestOptimalImageCaptureSettingsInput
 ): Promise<SuggestOptimalImageCaptureSettingsOutput> {
+  const ip = getClientIp(await headers());
+  if (!checkRateLimit(`ai-suggest:${ip}`, 10)) {
+    throw new Error('Too many requests. Please try again in a minute.');
+  }
   return suggestOptimalImageCaptureSettingsFlow(input);
 }
 

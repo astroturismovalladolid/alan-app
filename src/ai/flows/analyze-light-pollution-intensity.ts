@@ -10,6 +10,8 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {headers} from 'next/headers';
+import {checkRateLimit, getClientIp} from '@/lib/rate-limit';
 
 const AnalyzeLightPollutionIntensityInputSchema = z.object({
   photoDataUri: z
@@ -41,6 +43,10 @@ export type AnalyzeLightPollutionIntensityOutput = z.infer<
 export async function analyzeLightPollutionIntensity(
   input: AnalyzeLightPollutionIntensityInput
 ): Promise<AnalyzeLightPollutionIntensityOutput> {
+  const ip = getClientIp(await headers());
+  if (!checkRateLimit(`ai-analyze:${ip}`, 10)) {
+    throw new Error('Too many requests. Please try again in a minute.');
+  }
   return analyzeLightPollutionIntensityFlow(input);
 }
 
