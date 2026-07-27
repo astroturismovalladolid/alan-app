@@ -1,4 +1,4 @@
-import { mockImages, mockForumTopics } from '../data';
+import { mockImages } from '../data';
 
 describe('Mock Data', () => {
   describe('mockImages', () => {
@@ -28,35 +28,6 @@ describe('Mock Data', () => {
 
     it('should have unique IDs', () => {
       const ids = mockImages.map((image) => image.id);
-      const uniqueIds = new Set(ids);
-      expect(uniqueIds.size).toBe(ids.length);
-    });
-  });
-
-  describe('mockForumTopics', () => {
-    it('should export an array of forum topics', () => {
-      expect(Array.isArray(mockForumTopics)).toBe(true);
-      expect(mockForumTopics.length).toBeGreaterThan(0);
-    });
-
-    it('should have required properties on each topic', () => {
-      mockForumTopics.forEach((topic) => {
-        expect(topic).toHaveProperty('id');
-        expect(topic).toHaveProperty('title');
-        expect(topic).toHaveProperty('postCount');
-        expect(topic).toHaveProperty('lastActivity');
-      });
-    });
-
-    it('should have valid post counts', () => {
-      mockForumTopics.forEach((topic) => {
-        expect(topic.postCount).toBeGreaterThan(0);
-        expect(typeof topic.postCount).toBe('number');
-      });
-    });
-
-    it('should have unique IDs', () => {
-      const ids = mockForumTopics.map((topic) => topic.id);
       const uniqueIds = new Set(ids);
       expect(uniqueIds.size).toBe(ids.length);
     });

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ImagePlus, MessagesSquare, Wrench } from 'lucide-react';
+import { Home, ImagePlus, Wrench } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import {
@@ -15,7 +15,6 @@ const links = [
   { href: '/', label: 'Gallery', icon: Home },
   { href: '/upload', label: 'Upload', icon: ImagePlus },
   { href: '/tools', label: 'AI Tools', icon: Wrench },
-  { href: '/forum', label: 'Forum', icon: MessagesSquare },
 ];
 
 export function MainNav() {
