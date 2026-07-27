@@ -14,9 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ChevronDown, Loader2 } from 'lucide-react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCamera, faQuestion } from '@fortawesome/free-solid-svg-icons';
+import { ChevronDown, Loader2, Camera, HelpCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -172,7 +170,7 @@ export default function Home() {
           className="rounded-full h-24 w-24 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
           onClick={() => setInfoModalOpen(true)}
         >
-          <FontAwesomeIcon icon={faQuestion} className="w-12 h-12" />
+          <HelpCircle className="w-12 h-12" />
         </Button>
       </div>
       <div className="ios-bottom-button fixed bottom-11 z-[1000]" style={{ right: 'max(2rem, calc(2rem + env(safe-area-inset-right)))' }}>
@@ -181,7 +179,7 @@ export default function Home() {
           className="rounded-full h-24 w-24 p-0 bg-card text-card-foreground shadow-lg hover:bg-accent dark:bg-black night:bg-primary night:hover:bg-primary/90 night:text-primary-foreground"
           onClick={() => setUploadModalOpen(true)}
         >
-          <FontAwesomeIcon icon={faCamera} className="w-12 h-12" />
+          <Camera className="w-12 h-12" />
         </Button>
       </div>
 
