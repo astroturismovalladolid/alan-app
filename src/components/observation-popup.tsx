@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Star, MapPin, Flag, Loader2, Trash2, Clock } from 'lucide-react';
+import { Star, MapPin, Flag, Loader2, Trash2, Clock, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/context/auth-context';
 import { useLanguage } from '@/context/language-context';
-import { addRating, reportObservation, unreportObservation, deleteObservation, type Observation } from '@/lib/observations-fetch';
+import { addRating, reportObservation, unreportObservation, deleteObservation, updateDescription, type Observation } from '@/lib/observations-fetch';
 import { cn } from '@/lib/utils';
 
 interface ObservationPopupProps {
@@ -14,25 +14,30 @@ interface ObservationPopupProps {
   onRatingAdded: () => void;
   onReported: () => void;
   onDeleted: () => void;
+  onDescriptionUpdated: () => void;
   authorName?: string;
 }
 
-export function ObservationPopup({ observation, onRatingAdded, onReported, onDeleted, authorName }: ObservationPopupProps) {
+export function ObservationPopup({ observation, onRatingAdded, onReported, onDeleted, onDescriptionUpdated, authorName }: ObservationPopupProps) {
   const { user } = useAuth();
   const { t, language } = useLanguage();
   const [showRatingForm, setShowRatingForm] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
   const [newRating, setNewRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [reportReason, setReportReason] = useState('');
+  const [editedDescription, setEditedDescription] = useState(observation.description);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   const isAuthor = user?.uid === observation.authorId;
   const ratingValues = Object.values(observation.ratings);
-  const averageRating = ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length;
+  const averageRating = ratingValues.length > 0
+    ? ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length
+    : 0;
   const userHasRated = user?.uid ? observation.ratings[user.uid] !== undefined : false;
   const userRating = user?.uid ? observation.ratings[user.uid] : undefined;
   const userHasReported = user?.uid ? observation.reports.some(report => report.userId === user.uid) : false;
@@ -172,6 +177,24 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
     setIsSubmitting(false);
   };
 
+  const handleDescriptionSave = async () => {
+    setIsSubmitting(true);
+    setError(null);
+    setSuccess(null);
+
+    const result = await updateDescription(observation.id, editedDescription);
+
+    if (result.success) {
+      setSuccess(t('descriptionUpdated'));
+      setShowEditForm(false);
+      onDescriptionUpdated();
+    } else {
+      setError(result.error || t('failedToUpdateDescription'));
+    }
+
+    setIsSubmitting(false);
+  };
+
   const handleDelete = async () => {
     if (!user || !isAuthor) {
       setError(t('mustBeAuthorToDelete'));
@@ -227,12 +250,14 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
             ))}
           </div>
           <span className="text-sm text-muted-foreground">
-            {averageRating.toFixed(1)} ({ratingValues.length} {ratingValues.length === 1 ? t('rating') : t('ratings')})
+            {ratingValues.length > 0
+              ? `${averageRating.toFixed(1)} (${ratingValues.length} ${ratingValues.length === 1 ? t('rating') : t('ratings')})`
+              : t('noRatingsYet')}
           </span>
         </div>
 
         {/* Description */}
-        <p className="text-sm text-foreground">{observation.description}</p>
+        {!showEditForm && <p className="text-sm text-foreground">{observation.description}</p>}
 
         {/* Author */}
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -406,24 +431,69 @@ export function ObservationPopup({ observation, onRatingAdded, onReported, onDel
           </div>
         )}
 
-        {/* Author delete action */}
+        {/* Author actions: edit description / delete */}
         {isAuthor && (
           <div className="space-y-2 pt-2 border-t">
-            {!showDeleteConfirm ? (
+            {showEditForm ? (
+              <div className="space-y-3">
+                <div className="text-sm font-medium">{t('editDescription')}</div>
+                <Textarea
+                  value={editedDescription}
+                  onChange={(e) => setEditedDescription(e.target.value)}
+                  rows={3}
+                  className="text-sm"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setShowEditForm(false);
+                      setEditedDescription(observation.description);
+                      setError(null);
+                    }}
+                    disabled={isSubmitting}
+                  >
+                    {t('cancel')}
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="flex-1"
+                    onClick={handleDescriptionSave}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+                    {t('saveDescription')}
+                  </Button>
+                </div>
+              </div>
+            ) : !showDeleteConfirm ? (
               <>
                 <div className="text-xs text-muted-foreground italic">
                   {t('thisIsYourObservation')}
                 </div>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  className="w-full"
-                  onClick={() => setShowDeleteConfirm(true)}
-                  disabled={isSubmitting}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  {t('deleteObservation')}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setShowEditForm(true)}
+                    disabled={isSubmitting}
+                  >
+                    <Pencil className="h-4 w-4 mr-1" />
+                    {t('editDescription')}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    disabled={isSubmitting}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    {t('deleteObservation')}
+                  </Button>
+                </div>
               </>
             ) : (
               <div className="space-y-3">

@@ -40,6 +40,38 @@ service cloud.firestore {
       return request.resource.data.get('authorId', null) != null;
     }
 
+    // An update that touches only the given field(s) and nothing else.
+    function onlyChanges(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+
+    // Any authenticated user may add or change their OWN entry in the
+    // ratings map (and the recomputed top-level average), never someone
+    // else's. addRating() in observations-fetch.ts writes both fields
+    // together, so both are part of the same diff.
+    function isValidRatingsUpdate() {
+      let uid = request.auth.uid;
+      let before = resource.data.get('ratings', {});
+      let after = request.resource.data.ratings;
+      return onlyChanges(['ratings', 'rating'])
+        && after[uid] is number && after[uid] >= 1 && after[uid] <= 5
+        && after.diff(before).affectedKeys().hasOnly([uid])
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1 && request.resource.data.rating <= 5;
+    }
+
+    // `reports` is a list (not a map), so we can't diff it key-by-key the
+    // way we do ratings. Bound it to a +/-1 size change (one report added
+    // or removed per call, matching reportObservation/unreportObservation)
+    // rather than trying to prove which entry changed.
+    function isValidReportsUpdate() {
+      let before = resource.data.get('reports', []);
+      let after = request.resource.data.reports;
+      return onlyChanges(['reports'])
+        && after.size() >= 0
+        && (after.size() == before.size() + 1 || after.size() == before.size() - 1 || after.size() == before.size());
+    }
+
     // Observations collection rules
     match /observations/{observationId} {
       // Anyone can read observations (public data)
@@ -65,18 +97,15 @@ service cloud.firestore {
         && (!isAuthenticatedObservation() || request.resource.data.authorId == request.auth.uid)
       );
 
-      // Update observation rules
-      allow update: if (
-        // Must be authenticated
-        request.auth != null
-        // Can only update if you are the author (anonymous observations cannot be updated)
-        && resource.data.authorId == request.auth.uid
-        // Cannot change authorId, isAnonymous, or locationPrecision after creation
-        && request.resource.data.authorId == resource.data.authorId
-        && request.resource.data.isAnonymous == resource.data.isAnonymous
-        && request.resource.data.locationPrecision == resource.data.locationPrecision
-        // Validation of updated fields
-        && (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['description', 'ratings', 'reports']))
+      // Update observation rules. Three distinct, mutually exclusive cases:
+      allow update: if request.auth != null && (
+        // 1. The author edits their own description (nothing else changes).
+        (resource.data.get('authorId', null) == request.auth.uid && onlyChanges(['description'])
+          && request.resource.data.description.size() >= 10)
+        // 2. Any authenticated user rates the observation (their own key only).
+        || isValidRatingsUpdate()
+        // 3. Any authenticated user reports/unreports the observation.
+        || isValidReportsUpdate()
       );
 
       // Delete observation rules

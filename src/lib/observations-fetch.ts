@@ -44,9 +44,13 @@ export async function fetchObservations(): Promise<Observation[]> {
         ratingsMap[data.authorId] = data.rating;
       }
 
-      // Calculate average from ratings map
+      // Calculate average from ratings map (0 when nobody has rated yet,
+      // e.g. anonymous observations start with an empty ratings map —
+      // dividing by ratingValues.length would otherwise be NaN)
       const ratingValues = Object.values(ratingsMap);
-      const averageRating = ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length;
+      const averageRating = ratingValues.length > 0
+        ? ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length
+        : 0;
 
       observations.push({
         id: doc.id,
@@ -170,6 +174,25 @@ export async function unreportObservation(
     return { success: true };
   } catch (error: any) {
     console.error('Error unreporting observation:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateDescription(
+  observationId: string,
+  description: string
+): Promise<{ success: boolean; error?: string }> {
+  const trimmed = description.trim();
+  if (trimmed.length < 10) {
+    return { success: false, error: 'Description must be at least 10 characters.' };
+  }
+
+  try {
+    const observationRef = doc(db, 'observations', observationId);
+    await updateDoc(observationRef, { description: trimmed });
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error updating description:', error);
     return { success: false, error: error.message };
   }
 }

@@ -85,6 +85,19 @@ const MapComponent = forwardRef<MapRef>((props, ref) => {
     },
   }));
 
+  // Refetch and sync the modal's selected observation with fresh data
+  // (shared by the rating/report/description-edit callbacks below).
+  const refreshSelectedObservation = () => {
+    refetch().then(({ data }) => {
+      if (data && selectedObservation) {
+        const updated = data.find(obs => obs.id === selectedObservation.id);
+        if (updated) {
+          setSelectedObservation(updated);
+        }
+      }
+    });
+  };
+
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -243,30 +256,9 @@ const MapComponent = forwardRef<MapRef>((props, ref) => {
             <ObservationPopup
               observation={selectedObservation}
               authorName={selectedObservation.authorName}
-              onRatingAdded={() => {
-                // React Query will automatically refetch and update
-                refetch().then(({ data }) => {
-                  // Update the selected observation with fresh data
-                  if (data) {
-                    const updated = data.find(obs => obs.id === selectedObservation.id);
-                    if (updated) {
-                      setSelectedObservation(updated);
-                    }
-                  }
-                });
-              }}
-              onReported={() => {
-                // React Query will automatically refetch and update
-                refetch().then(({ data }) => {
-                  // Update the selected observation with fresh data
-                  if (data) {
-                    const updated = data.find(obs => obs.id === selectedObservation.id);
-                    if (updated) {
-                      setSelectedObservation(updated);
-                    }
-                  }
-                });
-              }}
+              onRatingAdded={refreshSelectedObservation}
+              onReported={refreshSelectedObservation}
+              onDescriptionUpdated={refreshSelectedObservation}
               onDeleted={() => {
                 // Close modal and refetch observations after deletion
                 setIsModalOpen(false);
