@@ -20,7 +20,8 @@ import { Trash2, Download, Shield, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '@/context/language-context';
 import { useAuth } from '@/context/auth-context';
 import { collection, query, where, getDocs, deleteDoc, doc, writeBatch } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { ref, deleteObject } from 'firebase/storage';
+import { db, storage } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
 
 interface ObservationStats {
@@ -106,6 +107,13 @@ export function PrivacyDashboard() {
         return;
       }
 
+      // Collect image URLs before the docs are gone, so we can also clean
+      // up Storage below (the single-observation delete already does this;
+      // bulk delete used to leave these images orphaned).
+      const imageUrls: string[] = querySnapshot.docs
+        .map((document: any) => document.data().imageUrl)
+        .filter(Boolean);
+
       // Delete in batches (Firestore limit: 500 operations per batch)
       const batches = [];
       let currentBatch = writeBatch(db);
@@ -139,6 +147,16 @@ export function PrivacyDashboard() {
           throw new Error(`Failed to delete batch ${i + 1} of ${batches.length}`);
         }
       }
+
+      // Best-effort cleanup of the associated Storage images. A failure
+      // here shouldn't undo the (already committed) Firestore deletion.
+      await Promise.allSettled(
+        imageUrls.map((imageUrl) =>
+          deleteObject(ref(storage, imageUrl)).catch((storageError) => {
+            console.warn('Failed to delete image from storage:', storageError);
+          })
+        )
+      );
 
       toast({
         title: t('observationsDeleted'),
