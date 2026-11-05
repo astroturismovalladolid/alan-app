@@ -5,7 +5,7 @@
 **Fecha:** 18 de noviembre de 2025
 **Responsable del Tratamiento:** Alejandro Catalá Espí
 **Contacto:** alejandrocatala@gmail.com
-**Dirección:** Calle Almudena Grandes, 6 - 47320 Tudela de Duero (Valladolid), España
+**Dirección:** disponible bajo petición al responsable (omitida en la versión pública)
 
 ---
 
@@ -671,7 +671,7 @@ allow delete: if (
 **Responsable del Tratamiento:**
 - Nombre: Alejandro Catalá Espí
 - Email: alejandrocatala@gmail.com
-- Dirección: Calle Almudena Grandes, 6 - 47320 Tudela de Duero (Valladolid), España
+- Dirección: disponible bajo petición al responsable (omitida en la versión pública)
 
 **Encargados del Tratamiento:**
 - Google LLC (Firebase, Google Cloud, Gemini)
@@ -1205,4 +1205,4 @@ Se pone en conocimiento de la **Agencia Española de Protección de Datos (AEPD)
 **Alejandro Catalá Espí**
 Responsable del Tratamiento - Aplicación ALAN
 alejandrocatala@gmail.com
-Calle Almudena Grandes, 6 - 47320 Tudela de Duero (Valladolid), España
+Dirección: disponible bajo petición al responsable (omitida en la versión pública)
